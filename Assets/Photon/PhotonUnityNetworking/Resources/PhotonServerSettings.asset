@@ -40,6 +40,8 @@ MonoBehaviour:
   - RespawnSpaceship
   - Equip
   - Shoot
+  - TakeDamage
+  - SyncGunPosition
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

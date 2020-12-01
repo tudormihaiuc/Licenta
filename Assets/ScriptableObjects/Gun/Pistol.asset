@@ -19,3 +19,4 @@ MonoBehaviour:
   bloom: 20
   recoil: 10
   kickback: 0.15
+  damage: 100

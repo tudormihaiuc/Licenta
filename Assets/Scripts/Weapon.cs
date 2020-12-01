@@ -16,41 +16,42 @@ public class Weapon : MonoBehaviourPunCallbacks
     public float currentCooldown;
 
     public Camera camera;
-    //PhotonView PV;
+    private GameObject currWeaponPosition;
     // Start is called before the first frame update
     void Start()
     {
         
     }
-
-    private void Awake() {
-        //PV=GetComponent<PhotonView>();
-    }
     // Update is called once per frame
     void Update()
     {
-        if(!photonView.IsMine){
-            return;
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha1)){
+        if(photonView.IsMine&&Input.GetKeyDown(KeyCode.Alpha1)){
             photonView.RPC("Equip",RpcTarget.All,0);
             //Equip(0);
         }
         if(currentWeapon!=null){
-            Aim(Input.GetMouseButton(1));
-            if(Input.GetMouseButtonDown(0)&&currentCooldown<=0){
-                Vector3 firingSpot=camera.transform.position;
-                Vector3 fireDirection=camera.transform.forward;
+            if(photonView.IsMine){
+                Aim(Input.GetMouseButton(1));
+                if(Input.GetMouseButtonDown(0)&&currentCooldown<=0){
+                    Vector3 firingSpot=camera.transform.position;
+                    Vector3 fireDirection=camera.transform.forward;
+                    Vector3 t_bloom=fireDirection*1000f+firingSpot;
+                    t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.up;
+                    t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.right;
+                    t_bloom-=firingSpot;
+                    t_bloom.Normalize();
                 //Shoot(firingSpot,fireDirection);
-                photonView.RPC("Shoot",RpcTarget.All,firingSpot,fireDirection);
+                    photonView.RPC("Shoot",RpcTarget.All,firingSpot,t_bloom);
                 //Shoot();
+                //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                }
+            //cooldown
+                if(currentCooldown>0){
+                currentCooldown-=Time.deltaTime;
+                }
             }
             currentWeapon.transform.localPosition=Vector3.Lerp(currentWeapon.transform.localPosition,Vector3.zero,Time.deltaTime*4f);
-            //cooldown
-            if(currentCooldown>0){
-                currentCooldown-=Time.deltaTime;
-            }
-            }
+        }
         
     }
     void Aim(bool p_isAiming){
@@ -74,8 +75,10 @@ public class Weapon : MonoBehaviourPunCallbacks
         GameObject t_newWeapon=Instantiate(loadout[p_ind].prefab,weaponParent.position,weaponParent.rotation,weaponParent) as GameObject;
         t_newWeapon.transform.localPosition=Vector3.zero;
         t_newWeapon.transform.localEulerAngles=Vector3.zero;
-        t_newWeapon.GetComponent<Sway>().enabled=photonView.IsMine;
+        //if(photonView.IsMine)
+            t_newWeapon.GetComponent<Sway>().isMine=photonView.IsMine;
         currentWeapon=t_newWeapon;
+       // currWeaponPosition.transform.localPosition=currentWeapon.transform.localPosition;
     }
     [PunRPC]
     void Shoot(Vector3 firingPoint,Vector3 firingDirection){
@@ -98,6 +101,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                 //shooting a player
                 if(t_hit.collider.gameObject.layer==11){
                     //RPC call to dmg player
+                    t_hit.collider.gameObject.GetPhotonView().RPC("TakeDamage",RpcTarget.All,loadout[currentIndex].damage);
                 }
             }
         }
@@ -107,5 +111,14 @@ public class Weapon : MonoBehaviourPunCallbacks
 
         //rate of fire
         currentCooldown=loadout[currentIndex].firerate;
+    }
+    [PunRPC]
+    private void TakeDamage(int p_damage){
+        GetComponent<PlayerController>().TakeDamage(p_damage);
+    }
+
+    [PunRPC]
+    public void SyncGunPosition(){
+        currentWeapon.transform.localPosition=Vector3.Lerp(currentWeapon.transform.localPosition,Vector3.zero,Time.deltaTime*4f);
     }
 }

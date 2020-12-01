@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public float maxAngle;
     private Quaternion camCenter;
     public static bool cursorLocked=true;
+    public int maxHealth;
+    private int current_Health;
+    private PlayerManager playerManager;
 
     void Awake() {
         rb=GetComponent<Rigidbody>();
@@ -41,6 +44,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void Start() {
         Application.targetFrameRate=50;
         camCenter=cams.localRotation;
+        current_Health=maxHealth;
+        playerManager=GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
         weaponParentOrigin=weaponParent.localPosition;
         if(photonView.IsMine){
             //EquipItem(0);//equip first item in the item array
@@ -188,6 +193,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if(Input.GetKeyDown(KeyCode.Escape)){
                 cursorLocked=true;
             }
+        }
+    }
+    public void TakeDamage(int p_damage){
+        if(photonView.IsMine){
+        current_Health-=p_damage;
+        Debug.Log(current_Health);
+        if(current_Health<=0){
+            Debug.Log("You died");
+            PhotonNetwork.Destroy(gameObject);
+            playerManager.CreateController();
+        }
         }
     }
     

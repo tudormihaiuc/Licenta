@@ -22,10 +22,10 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    void CreateController(){
+    public void CreateController(){
         //here we instantiate our player controller
         Debug.Log("Instantiated Player Controller");
         int spawn=Random.Range(0,spawnLocations.Length);
-        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerController"),spawnLocations[spawn].transform.position,Quaternion.identity);
+        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerController"),spawnLocations[spawn].transform.position,spawnLocations[spawn].transform.rotation);
     }
 }

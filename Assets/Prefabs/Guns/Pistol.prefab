@@ -234,6 +234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   intesnsity: 1
   smooth: 10
+  isMine: 1
 --- !u!1 &5673368419238231994
 GameObject:
   m_ObjectHideFlags: 0
