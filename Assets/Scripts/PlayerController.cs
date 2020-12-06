@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using Hashtable=ExitGames.Client.Photon.Hashtable;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
@@ -36,6 +37,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private int current_Health;
     private PlayerManager playerManager;
     private Transform uiHealthbar;
+    private Weapon weaponUI;
+    private Text uiAmmo;
 
     void Awake() {
         rb=GetComponent<Rigidbody>();
@@ -46,6 +49,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Application.targetFrameRate=50;
         camCenter=cams.localRotation;
         current_Health=maxHealth;
+        weaponUI=GetComponent<Weapon>();
         playerManager=GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
         weaponParentOrigin=weaponParent.localPosition;
         if(photonView.IsMine){
@@ -57,6 +61,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         if(photonView.IsMine){
             uiHealthbar=GameObject.Find("HUD/Health/Bar").transform;
+            uiAmmo=GameObject.Find("HUD/Ammo/Text").GetComponent<Text>();
             RefreshHealthBar();
             }
     }
@@ -110,6 +115,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             TakeDamage(100);
         }
         RefreshHealthBar();
+        weaponUI.RefreshAmmo(uiAmmo);
     }
     
 

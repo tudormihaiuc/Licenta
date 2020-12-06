@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.UI;
 
 public class Weapon : MonoBehaviourPunCallbacks
 {
@@ -17,10 +18,14 @@ public class Weapon : MonoBehaviourPunCallbacks
 
     public Camera camera;
     private GameObject currWeaponPosition;
+    private bool isReloading;
     // Start is called before the first frame update
     void Start()
     {
-        
+        foreach(Gun i in loadout){
+            i.InitAmmo();
+        }
+        Equip(0);
     }
     // Update is called once per frame
     void Update()
@@ -32,18 +37,27 @@ public class Weapon : MonoBehaviourPunCallbacks
         if(currentWeapon!=null){
             if(photonView.IsMine){
                 Aim(Input.GetMouseButton(1));
-                if(Input.GetMouseButtonDown(0)&&currentCooldown<=0){
-                    Vector3 firingSpot=camera.transform.position;
-                    Vector3 fireDirection=camera.transform.forward;
-                    Vector3 t_bloom=fireDirection*1000f+firingSpot;
-                    t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.up;
-                    t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.right;
-                    t_bloom-=firingSpot;
-                    t_bloom.Normalize();
-                //Shoot(firingSpot,fireDirection);
-                    photonView.RPC("Shoot",RpcTarget.All,firingSpot,t_bloom);
-                //Shoot();
-                //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                if(Input.GetMouseButtonDown(0)&&currentCooldown<=0){    
+                    if(loadout[currentIndex].FireBullet()){
+                        Vector3 firingSpot=camera.transform.position;
+                        Vector3 fireDirection=camera.transform.forward;
+                        Vector3 t_bloom=fireDirection*1000f+firingSpot;
+                        t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.up;
+                        t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.right;
+                        t_bloom-=firingSpot;
+                        t_bloom.Normalize();
+                        //Shoot(firingSpot,fireDirection);
+                        photonView.RPC("Shoot",RpcTarget.All,firingSpot,t_bloom);
+                        //Shoot();
+                        //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                    }else{
+                        //loadout[currentIndex].Reload();
+                        StartCoroutine(Reload(loadout[currentIndex].reload));
+                    }
+                }
+                if(Input.GetKeyDown(KeyCode.R)){
+                    //loadout[currentIndex].Reload();
+                    StartCoroutine(Reload(loadout[currentIndex].reload));
                 }
             //cooldown
                 if(currentCooldown>0){
@@ -69,6 +83,9 @@ public class Weapon : MonoBehaviourPunCallbacks
     [PunRPC]
     void Equip(int p_ind){
         if(currentWeapon!=null){
+            if(isReloading){
+                StopCoroutine("Reload");
+            }
             Destroy(currentWeapon);
         }
         currentIndex=p_ind;
@@ -120,5 +137,20 @@ public class Weapon : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SyncGunPosition(){
         currentWeapon.transform.localPosition=Vector3.Lerp(currentWeapon.transform.localPosition,Vector3.zero,Time.deltaTime*4f);
+    }
+
+    IEnumerator Reload(float p_wait){
+        isReloading=true;
+        //the lines with SetActive is a placeholder for the reload anim
+        currentWeapon.SetActive(false);
+        yield return new WaitForSeconds(p_wait);//wait for p_wait ammount of time without freezing the script
+        loadout[currentIndex].ReloadGun();
+        currentWeapon.SetActive(true);
+        isReloading=false;
+    }
+    public void RefreshAmmo(Text p_text){
+        int t_clip=loadout[currentIndex].GetClip();
+        int t_stash=loadout[currentIndex].GetStash();
+        p_text.text=t_clip.ToString("D2")+"/"+t_stash.ToString("D2");
     }
 }

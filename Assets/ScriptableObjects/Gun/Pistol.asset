@@ -20,3 +20,8 @@ MonoBehaviour:
   recoil: 10
   kickback: 0.15
   damage: 100
+  ammo: 16
+  clipSize: 8
+  clip: 0
+  stash: 0
+  reload: 2
