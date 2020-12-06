@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public int maxHealth;
     private int current_Health;
     private PlayerManager playerManager;
+    private Transform uiHealthbar;
 
     void Awake() {
         rb=GetComponent<Rigidbody>();
@@ -54,6 +55,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Destroy(rb);
             gameObject.layer=11;
         }
+        if(photonView.IsMine){
+            uiHealthbar=GameObject.Find("HUD/Health/Bar").transform;
+            RefreshHealthBar();
+            }
     }
 
     void Update() {
@@ -100,7 +105,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
             movementCounter+=Time.deltaTime*5f;
             weaponParent.localPosition=Vector3.Lerp(weaponParent.localPosition,targetWeaponBobPosition,Time.deltaTime*10f);
         }
-        
+        //test healthbar
+        if(Input.GetKeyDown(KeyCode.U)){
+            TakeDamage(100);
+        }
+        RefreshHealthBar();
     }
     
 
@@ -199,12 +208,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if(photonView.IsMine){
         current_Health-=p_damage;
         Debug.Log(current_Health);
+        RefreshHealthBar();
         if(current_Health<=0){
             Debug.Log("You died");
             PhotonNetwork.Destroy(gameObject);
             playerManager.CreateController();
         }
         }
+    }
+
+    void RefreshHealthBar(){
+        float health_Ratio=(float)current_Health/(float)maxHealth;
+        uiHealthbar.localScale=Vector3.Lerp(uiHealthbar.localScale, new Vector3(health_Ratio,1,1),Time.deltaTime*8f);
     }
     
 }
