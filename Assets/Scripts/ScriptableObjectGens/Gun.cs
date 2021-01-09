@@ -19,6 +19,8 @@ public class Gun : ScriptableObject
     public int stash;//current ammo
     public float reload;
 
+    public int burst; // 0=semi, 1=auto, 2+=burst
+
     public bool FireBullet(){
         if(clip>0){
             clip-=1;

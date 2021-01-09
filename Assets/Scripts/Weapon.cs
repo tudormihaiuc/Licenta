@@ -19,6 +19,7 @@ public class Weapon : MonoBehaviourPunCallbacks
     public Camera camera;
     private GameObject currWeaponPosition;
     private bool isReloading;
+    public bool isAiming=false;
     // Start is called before the first frame update
     void Start()
     {
@@ -34,25 +35,50 @@ public class Weapon : MonoBehaviourPunCallbacks
             photonView.RPC("Equip",RpcTarget.All,0);
             //Equip(0);
         }
+        if(photonView.IsMine&&Input.GetKeyDown(KeyCode.Alpha2)){
+            photonView.RPC("Equip",RpcTarget.All,1);
+            //Equip(0);
+        }
         if(currentWeapon!=null){
             if(photonView.IsMine){
                 Aim(Input.GetMouseButton(1));
-                if(Input.GetMouseButtonDown(0)&&currentCooldown<=0){    
-                    if(loadout[currentIndex].FireBullet()){
-                        Vector3 firingSpot=camera.transform.position;
-                        Vector3 fireDirection=camera.transform.forward;
-                        Vector3 t_bloom=fireDirection*1000f+firingSpot;
-                        t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.up;
-                        t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.right;
-                        t_bloom-=firingSpot;
-                        t_bloom.Normalize();
-                        //Shoot(firingSpot,fireDirection);
-                        photonView.RPC("Shoot",RpcTarget.All,firingSpot,t_bloom);
-                        //Shoot();
-                        //photonView.RPC("SyncGunPosition",RpcTarget.All);
-                    }else{
-                        //loadout[currentIndex].Reload();
-                        StartCoroutine(Reload(loadout[currentIndex].reload));
+                if(loadout[currentIndex].burst!=1){
+                    if(Input.GetMouseButtonDown(0)&&currentCooldown<=0){    
+                        if(loadout[currentIndex].FireBullet()){
+                            Vector3 firingSpot=camera.transform.position;
+                            Vector3 fireDirection=camera.transform.forward;
+                            Vector3 t_bloom=fireDirection*1000f+firingSpot;
+                            t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.up;
+                            t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.right;
+                            t_bloom-=firingSpot;
+                            t_bloom.Normalize();
+                            //Shoot(firingSpot,fireDirection);
+                            photonView.RPC("Shoot",RpcTarget.All,firingSpot,t_bloom);
+                            //Shoot();
+                            //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                        }else{
+                            //loadout[currentIndex].Reload();
+                            StartCoroutine(Reload(loadout[currentIndex].reload));
+                        }
+                    }
+                }else{
+                    if(Input.GetMouseButton(0)&&currentCooldown<=0){    
+                        if(loadout[currentIndex].FireBullet()){
+                            Vector3 firingSpot=camera.transform.position;
+                            Vector3 fireDirection=camera.transform.forward;
+                            Vector3 t_bloom=fireDirection*1000f+firingSpot;
+                            t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.up;
+                            t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*camera.transform.right;
+                            t_bloom-=firingSpot;
+                            t_bloom.Normalize();
+                            //Shoot(firingSpot,fireDirection);
+                            photonView.RPC("Shoot",RpcTarget.All,firingSpot,t_bloom);
+                            //Shoot();
+                            //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                        }else{
+                            //loadout[currentIndex].Reload();
+                            StartCoroutine(Reload(loadout[currentIndex].reload));
+                        }
                     }
                 }
                 if(Input.GetKeyDown(KeyCode.R)){
@@ -69,6 +95,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         
     }
     void Aim(bool p_isAiming){
+        isAiming=p_isAiming;
         Transform t_anchor=currentWeapon.transform.Find("Anchor");
         Transform t_state_hip=currentWeapon.transform.Find("States/Hip");
         Transform t_state_ads=currentWeapon.transform.Find("States/ADS");

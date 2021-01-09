@@ -6,7 +6,7 @@ using Photon.Realtime;
 using Hashtable=ExitGames.Client.Photon.Hashtable;
 using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     //[SerializeField] GameObject cameraHolder;
@@ -39,6 +39,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Transform uiHealthbar;
     private Weapon weaponUI;
     private Text uiAmmo;
+    public float crouchModifier;
+    public float crouchAmount;
+    public GameObject standingCollider;
+    public GameObject crouchingCollider;
+
 
     void Awake() {
         rb=GetComponent<Rigidbody>();
@@ -47,6 +52,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void Start() {
         Application.targetFrameRate=50;
+        QualitySettings.vSyncCount = 0;
         camCenter=cams.localRotation;
         current_Health=maxHealth;
         weaponUI=GetComponent<Weapon>();
@@ -70,8 +76,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         float t_hmove=Input.GetAxisRaw("Horizontal");
         float t_vmove=Input.GetAxisRaw("Vertical");
         //if i dont use this if each player would control eachother player
-        if(!photonView.IsMine)
-        return;
+        if(!photonView.IsMine){
+            RefreshMultiplayerState();
+            return;
+        }
         SetY();
         SetX();
         UpdateCursorLock();
@@ -97,6 +105,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 EquipItem(itemIndex-1);
                 }
         }*/
+        
         if(t_hmove==0&&t_vmove==0){
             HeadBob(idleCounter,0.02f,0.02f);
             idleCounter+=Time.deltaTime;
@@ -117,7 +126,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         RefreshHealthBar();
         weaponUI.RefreshAmmo(uiAmmo);
     }
-    
+    //for syncing
+    //we are using slerp to make estimations because when syncing we can loose some packeges and if we lose a couple is no big deal
+    void RefreshMultiplayerState(){
+        float cacheEulY=weaponParent.localEulerAngles.y;
+        Quaternion targetRotation=Quaternion.identity*Quaternion.AngleAxis(aimAngle,Vector3.right);
+        weaponParent.rotation=Quaternion.Slerp(weaponParent.rotation,targetRotation,Time.deltaTime*8f);
+        Vector3 finalRotation=weaponParent.localEulerAngles;
+        finalRotation.y=cacheEulY;
+        weaponParent.localEulerAngles=finalRotation;
+    }
 
     public void SetGroundedState(bool _grounded){
         grounded=_grounded;
@@ -175,7 +193,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
 
     void HeadBob(float p_z,float p_x_intensity,float p_y_intensity){
-        targetWeaponBobPosition=weaponParentOrigin + new Vector3(Mathf.Cos(p_z)*p_x_intensity,Mathf.Sin(p_z*2)*p_y_intensity,0);
+        float t_aim_adjust=1f;
+        if(weaponUI.isAiming){
+            t_aim_adjust=0.1f;
+        }
+        targetWeaponBobPosition=weaponParentOrigin + new Vector3(Mathf.Cos(p_z)*p_x_intensity*t_aim_adjust,Mathf.Sin(p_z*2)*p_y_intensity*t_aim_adjust,0);
     }
     void SetY(){
         float t_input=Input.GetAxis("Mouse Y")*ySensitivity*Time.deltaTime;
@@ -227,5 +249,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         float health_Ratio=(float)current_Health/(float)maxHealth;
         uiHealthbar.localScale=Vector3.Lerp(uiHealthbar.localScale, new Vector3(health_Ratio,1,1),Time.deltaTime*8f);
     }
-    
+    private float aimAngle;
+    //receives updates frequently about stuff
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info){
+        if(stream.IsWriting){
+            stream.SendNext((int)(weaponParent.transform.localEulerAngles.x*100f));
+        }
+        else{
+            aimAngle=(int)stream.ReceiveNext()/100f;
+        }
+    }
 }
