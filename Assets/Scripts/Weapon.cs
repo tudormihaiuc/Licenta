@@ -20,6 +20,7 @@ public class Weapon : MonoBehaviourPunCallbacks
     private GameObject currWeaponPosition;
     private bool isReloading;
     public bool isAiming = false;
+    [HideInInspector] public Gun currentGunData;
     public AudioSource sfx;
     // Start is called before the first frame update
     void Start()
@@ -157,6 +158,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         t_newWeapon.GetComponent<Sway>().isMine = photonView.IsMine;
         t_newWeapon.GetComponent<Animator>().Play("Equip", 0, 0);
         currentWeapon = t_newWeapon;
+        currentGunData=loadout[p_ind];
         // currWeaponPosition.transform.localPosition=currentWeapon.transform.localPosition;
     }
     [PunRPC]
@@ -190,7 +192,11 @@ public class Weapon : MonoBehaviourPunCallbacks
         }
 
         //sound effects
-
+        sfx.Stop();
+       sfx.clip=currentGunData.gunshotSound;
+       sfx.pitch=1-currentGunData.soundRandomization+Random.Range(-currentGunData.soundRandomization,currentGunData.soundRandomization);
+       sfx.Play();
+       Debug.Log("gunshot"+currentGunData.gunshotSound.name);
         //gun effects
         currentWeapon.transform.Rotate(-loadout[currentIndex].recoil, 0, 0);
         currentWeapon.transform.position -= currentWeapon.transform.forward * loadout[currentIndex].kickback;

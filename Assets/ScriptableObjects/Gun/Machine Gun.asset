@@ -22,9 +22,11 @@ MonoBehaviour:
   damage: 100
   ammo: 150
   clipSize: 30
-  clip: 30
-  stash: 146
+  clip: 8
+  stash: 139
   reload: 2
+  mainFOV: 0
+  weaponFOV: 0
   burst: 1
-  gunshotSound: {fileID: 0}
-  soundRandomization: 0
+  gunshotSound: {fileID: 8300000, guid: 520bafb43dfac4c4184bca04dded170a, type: 3}
+  soundRandomization: 0.1
