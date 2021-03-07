@@ -286,7 +286,7 @@ MonoBehaviour:
   xSensitivity: 100
   ySensitivity: 100
   maxAngle: 60
-  maxHealth: 500
+  maxHealth: 1000
   crouchModifier: 0.5
   crouchAmount: 0.5
   slideAmount: 0.75
@@ -296,6 +296,10 @@ MonoBehaviour:
   slideModifier: 2.25
   normalCam: {fileID: 7723748194411070000}
   weaponCam: {fileID: 0}
+  jetForce: 500
+  jetWait: 0.5
+  maxFuel: 2
+  jetRecovery: 5
 --- !u!54 &5600819630047208163
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -379,7 +383,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5483669160149465440}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.45, z: 0}
+  m_LocalPosition: {x: 0, y: 0.296, z: -0.0000000076452125}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2629526611027838158}
@@ -764,7 +768,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8880738558088474816}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.45, z: 0}
+  m_LocalPosition: {x: 0, y: 0.296, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3882931559504056324}

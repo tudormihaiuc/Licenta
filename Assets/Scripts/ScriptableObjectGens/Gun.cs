@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,6 +18,8 @@ public class Gun : ScriptableObject
     public int clip;//current bullets in gthe clip
     public int stash;//current ammo
     public float reload;
+    [Range(0,1)] public float mainFOV;
+    [Range(0,1)] public float weaponFOV;
 
     public int burst; // 0=semi, 1=auto, 2+=burst
     public AudioClip gunshotSound;

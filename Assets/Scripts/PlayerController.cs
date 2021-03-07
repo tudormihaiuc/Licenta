@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Quaternion camCenter;
     public static bool cursorLocked=true;
     public int maxHealth;
-    private int current_Health;
+    private int currentHealth;
     private PlayerManager playerManager;
     private Transform uiHealthbar;
     private Weapon weaponUI;
@@ -60,6 +60,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     private bool isAiming;
 
+    //jetpack
+    public float jetForce;
+    public float jetWait;
+    public float maxFuel;
+    private float currentFuel;
+    private float currentRecovery;
+    public float jetRecovery;
+    private Transform uiFuelbar;
+    private bool canJet;
+
+
+
 
 
     void Awake() {
@@ -71,14 +83,19 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         Application.targetFrameRate=50;
         QualitySettings.vSyncCount = 0;
         camCenter=cams.localRotation;
-        current_Health=maxHealth;
+        currentHealth=maxHealth;
         baseFOV=normalCam.fieldOfView;
         origin=normalCam.transform.localPosition;
         weaponUI=GetComponent<Weapon>();
         playerManager=GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
         weaponParentOrigin=weaponParent.localPosition;
         weaponParentCurrPos=weaponParentOrigin;
+        currentFuel=maxFuel;
         if(photonView.IsMine){
+            uiHealthbar=GameObject.Find("HUD/Health/Bar").transform;
+            uiAmmo=GameObject.Find("HUD/Ammo/Text").GetComponent<Text>();
+            RefreshHealthBar();
+            uiFuelbar=GameObject.Find("HUD/Fuel/Bar").transform;
             //EquipItem(0);//equip first item in the item array
         }else{
             Destroy(GetComponentInChildren<Camera>().gameObject);
@@ -87,11 +104,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             standingCollider.layer=11;
             crouchingCollider.layer=11;
         }
-        if(photonView.IsMine){
-            uiHealthbar=GameObject.Find("HUD/Health/Bar").transform;
-            uiAmmo=GameObject.Find("HUD/Ammo/Text").GetComponent<Text>();
-            RefreshHealthBar();
-            }
     }
 
     void Update() {
@@ -159,6 +171,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 photonView.RPC("SetCrouch",RpcTarget.All,false);
             }
             rb.AddForce(Vector3.up*jumpForce);
+            currentRecovery=0f;
         }
         //HeadBob
         if(sliding){
@@ -257,6 +270,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         bool sprint=Input.GetKey(KeyCode.LeftShift);
         bool slide=Input.GetKey(KeyCode.LeftControl);
         bool aim=Input.GetMouseButton(1);
+        bool jet=Input.GetKey(KeyCode.Space);
         bool isJumping=jump && grounded;
         bool isSprinting=sprint && !isJumping && grounded && t_vmove>0;
         bool isSliding=isSprinting && slide && !sliding;
@@ -315,6 +329,24 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 photonView.RPC("SetCrouch",RpcTarget.All,true);
             }
         }
+        //jet
+        if(jump&&!grounded){
+            canJet=true;
+        }
+        if(grounded){
+            canJet=false;
+            if(currentRecovery<jetWait){
+                currentRecovery=Mathf.Min(jetWait,currentRecovery+Time.fixedDeltaTime);
+            }else{
+                currentFuel=Mathf.Min(maxFuel,currentFuel+Time.fixedDeltaTime*jetRecovery);
+            }
+        }
+        if(canJet&&jet&&currentFuel>0){
+            rb.AddForce(Vector3.up*jetForce*Time.fixedDeltaTime,ForceMode.Acceleration);
+            currentFuel=Mathf.Max(0,currentFuel-Time.fixedDeltaTime);
+        }
+        uiFuelbar.localScale=new Vector3(currentFuel/maxFuel,1,1);
+        
         //Camera stuff
         if(sliding){
             normalCam.fieldOfView=Mathf.Lerp(normalCam.fieldOfView,baseFOV*sprintFOVModifier*1.25f,Time.deltaTime*8f);
@@ -372,10 +404,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     }
     public void TakeDamage(int p_damage){
         if(photonView.IsMine){
-        current_Health-=p_damage;
-        Debug.Log(current_Health);
+        currentHealth-=p_damage;
+        Debug.Log(currentHealth);
         RefreshHealthBar();
-        if(current_Health<=0){
+        if(currentHealth<=0){
             Debug.Log("You died");
             PhotonNetwork.Destroy(gameObject);
             playerManager.CreateController();
@@ -384,7 +416,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     void RefreshHealthBar(){
-        float health_Ratio=(float)current_Health/(float)maxHealth;
+        float health_Ratio=(float)currentHealth/(float)maxHealth;
         uiHealthbar.localScale=Vector3.Lerp(uiHealthbar.localScale, new Vector3(health_Ratio,1,1),Time.deltaTime*8f);
     }
     private float aimAngle;

@@ -28,8 +28,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             i.InitAmmo();
         }
-        //Equip(0);
-        photonView.RPC("Equip", RpcTarget.All, 0);
+        Equip(0);
     }
     // Update is called once per frame
     void Update()
@@ -48,7 +47,8 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             if (photonView.IsMine)
             {
-                Aim(Input.GetMouseButton(1));
+                photonView.RPC("Aim", RpcTarget.All, Input.GetMouseButton(1));
+                //Aim(Input.GetMouseButton(1));
                 if (loadout[currentIndex].burst != 1)
                 {
                     if (Input.GetMouseButtonDown(0) && currentCooldown <= 0)
@@ -120,6 +120,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         }
 
     }
+    [PunRPC]
     void Aim(bool p_isAiming)
     {
         isAiming = p_isAiming;
@@ -215,11 +216,11 @@ public class Weapon : MonoBehaviourPunCallbacks
         //the lines with SetActive is a placeholder for the reload anim
         if (currentIndex == 0)
         {
-            currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
+            currentWeapon.GetComponent<Animator>().Play("Reload1", 0, 0);
         }
         else if (currentIndex == 1)
         {
-            currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
+            currentWeapon.GetComponent<Animator>().Play("Reload1", 0, 0);
         }
         yield return new WaitForSeconds(p_wait);//wait for p_wait ammount of time without freezing the script
         loadout[currentIndex].ReloadGun();
