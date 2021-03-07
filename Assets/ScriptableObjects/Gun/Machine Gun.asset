@@ -16,13 +16,15 @@ MonoBehaviour:
   prefab: {fileID: 5488962309786991816, guid: 748514086f0c72e438ff2594b8952c1d, type: 3}
   firerate: 0.15
   aimSpeed: 10
-  bloom: 20
+  bloom: 10
   recoil: 4
   kickback: 0.05
   damage: 100
   ammo: 150
   clipSize: 30
   clip: 30
-  stash: 150
-  reload: 2.5
+  stash: 146
+  reload: 2
   burst: 1
+  gunshotSound: {fileID: 0}
+  soundRandomization: 0

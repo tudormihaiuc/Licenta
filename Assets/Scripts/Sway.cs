@@ -14,6 +14,9 @@ public class Sway : MonoBehaviour
     }
    private void Update() {
        UpdateSway();
+       if(Pause.paused){
+           return;
+       }
    }
 
    private void UpdateSway(){

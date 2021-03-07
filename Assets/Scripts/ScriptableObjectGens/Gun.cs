@@ -20,6 +20,9 @@ public class Gun : ScriptableObject
     public float reload;
 
     public int burst; // 0=semi, 1=auto, 2+=burst
+    public AudioClip gunshotSound;
+    public float soundRandomization;
+
 
     public bool FireBullet(){
         if(clip>0){

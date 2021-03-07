@@ -16,4 +16,10 @@ public string menuName;
         open=false;
         gameObject.SetActive(false);
     }
+
+    private void Start() {
+        Pause.paused=false;
+        Cursor.lockState=CursorLockMode.None;
+        Cursor.visible=true;
+    }
 }

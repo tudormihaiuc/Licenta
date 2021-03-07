@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class Look : MonoBehaviour
+public class Look : MonoBehaviourPunCallbacks
 {
     public Transform player;
     public Transform cams;
@@ -20,9 +21,15 @@ public class Look : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!photonView.IsMine){
+            return;
+        }
         SetY();
         SetX();
         UpdateCursorLock();
+        if(Pause.paused){
+            return;
+        }
     }
     void SetY(){
         float t_input=Input.GetAxis("Mouse Y")*ySensitivity*Time.deltaTime;

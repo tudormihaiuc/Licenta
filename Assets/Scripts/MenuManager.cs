@@ -7,6 +7,11 @@ public class MenuManager : MonoBehaviour
     public static MenuManager Instance;
     [SerializeField] Menu[] menus;
 
+    private void Start() {
+        Pause.paused=false;
+        Cursor.lockState=CursorLockMode.None;
+        Cursor.visible=true;
+    }
     void Awake(){
         Instance=this;
     }

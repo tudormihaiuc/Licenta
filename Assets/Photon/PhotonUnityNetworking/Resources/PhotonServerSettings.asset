@@ -42,6 +42,8 @@ MonoBehaviour:
   - Shoot
   - TakeDamage
   - SyncGunPosition
+  - SetCrouch
+  - ReloadRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
