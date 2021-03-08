@@ -44,6 +44,11 @@ public class Weapon : MonoBehaviourPunCallbacks
             photonView.RPC("Equip", RpcTarget.All, 1);
             //Equip(0);
         }
+        if (photonView.IsMine && Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            photonView.RPC("Equip", RpcTarget.All, 2);
+            //Equip(0);
+        }
         if (currentWeapon != null)
         {
             if (photonView.IsMine)
@@ -56,17 +61,20 @@ public class Weapon : MonoBehaviourPunCallbacks
                     {
                         if (loadout[currentIndex].FireBullet())
                         {
-                            Vector3 firingSpot = camera.transform.position;
-                            Vector3 fireDirection = camera.transform.forward;
-                            Vector3 t_bloom = fireDirection * 1000f + firingSpot;
-                            t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.up;
-                            t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.right;
-                            t_bloom -= firingSpot;
-                            t_bloom.Normalize();
-                            //Shoot(firingSpot,fireDirection);
-                            photonView.RPC("Shoot", RpcTarget.All, firingSpot, t_bloom);
-                            //Shoot();
-                            //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                            for (int i = 0; i < Mathf.Max(1, currentGunData.pellets); i++)
+                            {
+                                Vector3 firingSpot = camera.transform.position;
+                                Vector3 fireDirection = camera.transform.forward;
+                                Vector3 t_bloom = fireDirection * 1000f + firingSpot;
+                                t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.up;
+                                t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.right;
+                                t_bloom -= firingSpot;
+                                t_bloom.Normalize();
+                                //Shoot(firingSpot,fireDirection);
+                                photonView.RPC("Shoot", RpcTarget.All, firingSpot, t_bloom);
+                                //Shoot();
+                                //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                            }
                         }
                         else
                         {
@@ -81,17 +89,20 @@ public class Weapon : MonoBehaviourPunCallbacks
                     {
                         if (loadout[currentIndex].FireBullet())
                         {
-                            Vector3 firingSpot = camera.transform.position;
-                            Vector3 fireDirection = camera.transform.forward;
-                            Vector3 t_bloom = fireDirection * 1000f + firingSpot;
-                            t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.up;
-                            t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.right;
-                            t_bloom -= firingSpot;
-                            t_bloom.Normalize();
-                            //Shoot(firingSpot,fireDirection);
-                            photonView.RPC("Shoot", RpcTarget.All, firingSpot, t_bloom);
-                            //Shoot();
-                            //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                            for (int i = 0; i < Mathf.Max(1, currentGunData.pellets); i++)
+                            {
+                                Vector3 firingSpot = camera.transform.position;
+                                Vector3 fireDirection = camera.transform.forward;
+                                Vector3 t_bloom = fireDirection * 1000f + firingSpot;
+                                t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.up;
+                                t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.right;
+                                t_bloom -= firingSpot;
+                                t_bloom.Normalize();
+                                //Shoot(firingSpot,fireDirection);
+                                photonView.RPC("Shoot", RpcTarget.All, firingSpot, t_bloom);
+                                //Shoot();
+                                //photonView.RPC("SyncGunPosition",RpcTarget.All);
+                            }
                         }
                         else
                         {
@@ -158,7 +169,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         t_newWeapon.GetComponent<Sway>().isMine = photonView.IsMine;
         t_newWeapon.GetComponent<Animator>().Play("Equip", 0, 0);
         currentWeapon = t_newWeapon;
-        currentGunData=loadout[p_ind];
+        currentGunData = loadout[p_ind];
         // currWeaponPosition.transform.localPosition=currentWeapon.transform.localPosition;
     }
     [PunRPC]
@@ -172,6 +183,8 @@ public class Weapon : MonoBehaviourPunCallbacks
         t_bloom-=t_spawn.position;
         t_bloom.Normalize();*/
         //raycast
+        //rate of fire
+        currentCooldown = loadout[currentIndex].firerate;
         RaycastHit t_hit = new RaycastHit();
 
         Ray shooterRay = new Ray(firingPoint, firingDirection);
@@ -182,6 +195,12 @@ public class Weapon : MonoBehaviourPunCallbacks
             Destroy(t_newHole, 5f);
             if (photonView.IsMine)
             {
+                if (currentIndex == 1)
+                {
+                    currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
+                }else if(currentIndex==0){
+                    currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
+                }
                 //shooting a player
                 if (t_hit.collider.gameObject.layer == 11)
                 {
@@ -193,16 +212,21 @@ public class Weapon : MonoBehaviourPunCallbacks
 
         //sound effects
         sfx.Stop();
-       sfx.clip=currentGunData.gunshotSound;
-       sfx.pitch=1-currentGunData.soundRandomization+Random.Range(-currentGunData.soundRandomization,currentGunData.soundRandomization);
-       sfx.Play();
-       Debug.Log("gunshot"+currentGunData.gunshotSound.name);
+        sfx.clip = currentGunData.gunshotSound;
+        sfx.pitch = 1 - currentGunData.soundRandomization + Random.Range(-currentGunData.soundRandomization, currentGunData.soundRandomization);
+        sfx.volume = currentGunData.gunVolume;
+        sfx.Play();
+        Debug.Log("gunshot" + currentGunData.gunshotSound.name);
         //gun effects
         currentWeapon.transform.Rotate(-loadout[currentIndex].recoil, 0, 0);
         currentWeapon.transform.position -= currentWeapon.transform.forward * loadout[currentIndex].kickback;
+        if(currentGunData.recovery){
+            currentWeapon.GetComponent<Animator>().Play("Recovery",0,0);
+            Debug.Log("Recovery anim");
+        }
 
-        //rate of fire
-        currentCooldown = loadout[currentIndex].firerate;
+
+
     }
     [PunRPC]
     private void TakeDamage(int p_damage)
@@ -228,9 +252,14 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             currentWeapon.GetComponent<Animator>().Play("Reload1", 0, 0);
         }
+        else if (currentIndex == 2)
+        {
+            currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
+        }
+        
         yield return new WaitForSeconds(p_wait);//wait for p_wait ammount of time without freezing the script
         loadout[currentIndex].ReloadGun();
-        //currentWeapon.SetActive(true);
+        currentWeapon.SetActive(true);
         isReloading = false;
     }
     [PunRPC]

@@ -378,6 +378,7 @@ MonoBehaviour:
   loadout:
   - {fileID: 11400000, guid: de311cb56b2c57447ad44398cf9d26b0, type: 2}
   - {fileID: 11400000, guid: 0a48143032091a5489d732f128b69871, type: 2}
+  - {fileID: 11400000, guid: cc3368cc3390b5b4d81c58decc062486, type: 2}
   weaponParent: {fileID: 5694571401538462992}
   bulletholePrefab: {fileID: 1281906636452159743, guid: f9e9187d21871fe4b80d6779dfcd0541,
     type: 3}

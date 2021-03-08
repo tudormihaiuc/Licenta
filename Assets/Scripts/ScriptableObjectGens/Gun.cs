@@ -24,6 +24,9 @@ public class Gun : ScriptableObject
     public int burst; // 0=semi, 1=auto, 2+=burst
     public AudioClip gunshotSound;
     public float soundRandomization;
+    public float gunVolume;
+    public int pellets;
+    public bool recovery;
 
 
     public bool FireBullet(){
