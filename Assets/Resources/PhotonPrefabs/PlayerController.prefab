@@ -390,6 +390,7 @@ MonoBehaviour:
   isAiming: 0
   currentGunData: {fileID: 0}
   sfx: {fileID: 4440567976825287400}
+  hitmarkerSound: {fileID: 8300000, guid: 702916468a225434b94e006ffa5c358b, type: 3}
 --- !u!1 &5298478240558296447
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,7 +574,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
   field of view: 60
   orthographic: 0

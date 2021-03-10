@@ -22,6 +22,9 @@ public class Weapon : MonoBehaviourPunCallbacks
     public bool isAiming = false;
     [HideInInspector] public Gun currentGunData;
     public AudioSource sfx;
+    private Image hitmarkerImage;
+    private float hitmarkerWait;
+    public AudioClip hitmarkerSound;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +33,8 @@ public class Weapon : MonoBehaviourPunCallbacks
             i.InitAmmo();
         }
         Equip(0);
+        hitmarkerImage = GameObject.Find("HUD/Hitmarker/Image").GetComponent<Image>();
+        hitmarkerImage.color = new Color(1, 1, 1, 0);
     }
     // Update is called once per frame
     void Update()
@@ -53,7 +58,14 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             if (photonView.IsMine)
             {
-                photonView.RPC("Aim", RpcTarget.All, Input.GetMouseButton(1));
+                if (Input.GetKeyDown(KeyCode.R) || Input.GetKey(KeyCode.R))
+                {
+                    
+                }
+                else
+                {
+                    photonView.RPC("Aim", RpcTarget.All, Input.GetMouseButton(1));
+                }
                 //Aim(Input.GetMouseButton(1));
                 if (loadout[currentIndex].burst != 1)
                 {
@@ -125,6 +137,17 @@ public class Weapon : MonoBehaviourPunCallbacks
             }
             currentWeapon.transform.localPosition = Vector3.Lerp(currentWeapon.transform.localPosition, Vector3.zero, Time.deltaTime * 4f);
         }
+        if (photonView.IsMine)
+        {
+            if (hitmarkerWait > 0)
+            {
+                hitmarkerWait -= Time.deltaTime;
+            }
+            else
+            {
+                hitmarkerImage.color = Color.Lerp(hitmarkerImage.color, new Color(1, 1, 1, 0), Time.deltaTime * 2f);
+            }
+        }
 
         if (Pause.paused && photonView.IsMine)
         {
@@ -135,6 +158,10 @@ public class Weapon : MonoBehaviourPunCallbacks
     [PunRPC]
     void Aim(bool p_isAiming)
     {
+        if (isReloading)
+        {
+            return;
+        }
         isAiming = p_isAiming;
         Transform t_anchor = currentWeapon.transform.Find("Root");
         Transform t_state_hip = currentWeapon.transform.Find("States/Hip");
@@ -185,8 +212,8 @@ public class Weapon : MonoBehaviourPunCallbacks
         //raycast
         //rate of fire
         currentCooldown = loadout[currentIndex].firerate;
+        //raycast
         RaycastHit t_hit = new RaycastHit();
-
         Ray shooterRay = new Ray(firingPoint, firingDirection);
         if (Physics.Raycast(shooterRay, out t_hit, 1000f, canBeShot))
         {
@@ -198,7 +225,9 @@ public class Weapon : MonoBehaviourPunCallbacks
                 if (currentIndex == 1)
                 {
                     currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
-                }else if(currentIndex==0){
+                }
+                else if (currentIndex == 0)
+                {
                     currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
                 }
                 //shooting a player
@@ -206,6 +235,10 @@ public class Weapon : MonoBehaviourPunCallbacks
                 {
                     //RPC call to dmg player
                     t_hit.collider.transform.root.gameObject.GetPhotonView().RPC("TakeDamage", RpcTarget.All, loadout[currentIndex].damage);
+                    //hitmarker
+                    hitmarkerImage.color = Color.white;
+                    sfx.PlayOneShot(hitmarkerSound);
+                    hitmarkerWait = 0.5f;
                 }
             }
         }
@@ -220,8 +253,9 @@ public class Weapon : MonoBehaviourPunCallbacks
         //gun effects
         currentWeapon.transform.Rotate(-loadout[currentIndex].recoil, 0, 0);
         currentWeapon.transform.position -= currentWeapon.transform.forward * loadout[currentIndex].kickback;
-        if(currentGunData.recovery){
-            currentWeapon.GetComponent<Animator>().Play("Recovery",0,0);
+        if (currentGunData.recovery)
+        {
+            currentWeapon.GetComponent<Animator>().Play("Recovery", 0, 0);
             Debug.Log("Recovery anim");
         }
 
@@ -256,7 +290,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
         }
-        
+
         yield return new WaitForSeconds(p_wait);//wait for p_wait ammount of time without freezing the script
         loadout[currentIndex].ReloadGun();
         currentWeapon.SetActive(true);
