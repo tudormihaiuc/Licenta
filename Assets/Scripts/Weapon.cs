@@ -58,14 +58,8 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             if (photonView.IsMine)
             {
-                if (Input.GetKeyDown(KeyCode.R) || Input.GetKey(KeyCode.R))
-                {
-                    
-                }
-                else
-                {
                     photonView.RPC("Aim", RpcTarget.All, Input.GetMouseButton(1));
-                }
+                
                 //Aim(Input.GetMouseButton(1));
                 if (loadout[currentIndex].burst != 1)
                 {
@@ -271,7 +265,7 @@ public class Weapon : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SyncGunPosition()
     {
-        currentWeapon.transform.localPosition = Vector3.Lerp(currentWeapon.transform.localPosition, Vector3.zero, Time.deltaTime * 4f);
+        currentWeapon.transform.localPosition = Vector3.Lerp(currentWeapon.transform.localPosition, Vector3.zero, Time.deltaTime * 20f);
     }
 
     IEnumerator Reload(float p_wait)
