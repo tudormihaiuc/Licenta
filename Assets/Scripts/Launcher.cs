@@ -5,11 +5,24 @@ using Photon.Pun;
 using TMPro;
 using Photon.Realtime;
 using UnityEngine.UI;
+
+[System.Serializable]
 public class ProfileData
 {
     public string username;
     public int level;
     public int xp;
+
+    public ProfileData(){
+        this.username="GUEST USER";
+        this.level=0;
+        this.xp=0;
+    }
+    public ProfileData(string username,int level,int xp){
+        this.username=username;
+        this.level=level;
+        this.xp=xp;
+    }
 }
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -31,6 +44,8 @@ public class Launcher : MonoBehaviourPunCallbacks
     void Awake()
     {
         Instance = this;
+        myProfile=Data.LoadProfile();
+        usernameField.text=myProfile.username;
     }
     void Start()
     {
@@ -62,6 +77,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+        Data.SaveProfile(myProfile);
         MenuManager.Instance.OpenMenu("room");
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
         Player[] players = PhotonNetwork.PlayerList;
@@ -128,28 +144,19 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        if (string.IsNullOrEmpty(usernameField.text))
-        {
-            myProfile.username = "GUEST" + Random.Range(0, 100).ToString("000");
-        }
-        else
-        {
-            myProfile.username = usernameField.text;
-        }
         PhotonNetwork.LoadLevel(1);
     }
     private void FixedUpdate() {
         if (string.IsNullOrEmpty(usernameField.text))
         {
-            myProfile.username = "Player" + Random.Range(0, 100).ToString("000");
+            //myProfile.username = "Player" + Random.Range(0, 100).ToString("000");
             PhotonNetwork.NickName = "Player" + Random.Range(0, 100).ToString("000");
-            Debug.Log("username empty");
         }
         else
         {
             myProfile.username = usernameField.text;
             PhotonNetwork.NickName = usernameField.text;
-            Debug.Log(myProfile.username);
+            //Debug.Log(myProfile.username);
         }
     }
 }

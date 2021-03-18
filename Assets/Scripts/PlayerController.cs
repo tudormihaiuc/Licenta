@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -71,9 +72,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Transform uiFuelbar;
     private bool canJet;
     private Animator animator;
-
-
-
+    public ProfileData playerProfile;
+    public TextMeshPro playerUsername;
 
 
     void Awake()
@@ -101,6 +101,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             uiAmmo = GameObject.Find("HUD/Ammo/Text").GetComponent<Text>();
             RefreshHealthBar();
             uiFuelbar = GameObject.Find("HUD/Fuel/Bar").transform;
+            
             animator=GetComponent<Animator>();
             //EquipItem(0);//equip first item in the item array
         }
@@ -121,6 +122,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             ChangeLayer(t,p_layer);
         }
     }
+    [PunRPC]
+    private void SyncProfile(string p_username,int p_level,int p_xp){
+        playerProfile=new ProfileData(p_username,p_level,p_xp);
+        playerUsername.text=playerProfile.username;
+    }
     void Update()
     {
         //if i dont use this if each player would control eachother player
@@ -128,6 +134,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             RefreshMultiplayerState();
             return;
+        }
+        if(photonView.IsMine){
+            photonView.RPC("SyncProfile",RpcTarget.All,Launcher.myProfile.username,Launcher.myProfile.level,Launcher.myProfile.xp);
         }
         float t_hmove = Input.GetAxisRaw("Horizontal");
         float t_vmove = Input.GetAxisRaw("Vertical");
