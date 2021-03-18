@@ -432,8 +432,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         float t_anim_horizontal=0f;
         float t_anim_vertical=0f;
         if(grounded){
-            t_anim_horizontal=t_direction.y;
-            t_anim_vertical=t_direction.x;
+            //t_anim_horizontal=t_direction.y;
+            //t_anim_vertical=t_direction.x;
+            t_anim_horizontal=t_hmove;
+            t_anim_vertical=t_vmove;
         }
         animator.SetFloat("VelX",t_anim_horizontal);
         animator.SetFloat("VelY",t_anim_vertical);

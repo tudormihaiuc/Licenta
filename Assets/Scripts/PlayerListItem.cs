@@ -4,7 +4,13 @@ using UnityEngine;
 using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
-
+using UnityEngine.UI;
+/*public class ProfileData
+{
+    public string username;
+    public int level;
+    public int xp;
+}*/
 public class PlayerListItem : MonoBehaviourPunCallbacks
 {
     [SerializeField] TMP_Text text;
@@ -12,6 +18,7 @@ public class PlayerListItem : MonoBehaviourPunCallbacks
     public void SetUp(Player _player){
         player=_player;
         text.text=_player.NickName;
+        
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer){

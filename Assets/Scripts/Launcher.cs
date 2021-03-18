@@ -4,11 +4,18 @@ using UnityEngine;
 using Photon.Pun;
 using TMPro;
 using Photon.Realtime;
-
+using UnityEngine.UI;
+public class ProfileData
+{
+    public string username;
+    public int level;
+    public int xp;
+}
 public class Launcher : MonoBehaviourPunCallbacks
 {
     public static Launcher Instance;
     [SerializeField] TMP_InputField roomNameInputField;
+    [SerializeField] InputField usernameField;
     [SerializeField] TMP_Text errorText;
     [SerializeField] TMP_Text roomNameText;
     [SerializeField] Transform roomListContent;
@@ -18,8 +25,12 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     [SerializeField] GameObject startGameButton;
 
-    void Awake(){
-        Instance=this;
+    //public InputField usernameField;
+    public static ProfileData myProfile = new ProfileData();
+
+    void Awake()
+    {
+        Instance = this;
     }
     void Start()
     {
@@ -30,78 +41,115 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         Debug.Log("Connected to Master");
         PhotonNetwork.JoinLobby();
-        PhotonNetwork.AutomaticallySyncScene=true;
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     public override void OnJoinedLobby()
     {
         MenuManager.Instance.OpenMenu("title");
         Debug.Log("Joined Lobyy");
-        PhotonNetwork.NickName="Player"+Random.Range(0,100).ToString("000");
     }
-    
-    public void CreateRoom(){
-        if(string.IsNullOrEmpty(roomNameInputField.text)){
+
+    public void CreateRoom()
+    {
+        if (string.IsNullOrEmpty(roomNameInputField.text))
+        {
             return;
         }
         PhotonNetwork.CreateRoom(roomNameInputField.text);
         MenuManager.Instance.OpenMenu("loading");
     }
 
-    public override void OnJoinedRoom(){
+    public override void OnJoinedRoom()
+    {
         MenuManager.Instance.OpenMenu("room");
-        roomNameText.text=PhotonNetwork.CurrentRoom.Name;
-        Player[] players=PhotonNetwork.PlayerList;
-        foreach(Transform child in playerListContent){
+        roomNameText.text = PhotonNetwork.CurrentRoom.Name;
+        Player[] players = PhotonNetwork.PlayerList;
+        foreach (Transform child in playerListContent)
+        {
             Destroy(child.gameObject);
         }
-        for(int i=0;i<players.Length;i++){
-            Instantiate(PlayerListItemPrefab,playerListContent).GetComponent<PlayerListItem>().SetUp(players[i]);
+        for (int i = 0; i < players.Length; i++)
+        {
+            Instantiate(PlayerListItemPrefab, playerListContent).GetComponent<PlayerListItem>().SetUp(players[i]);
         }
         startGameButton.SetActive(PhotonNetwork.IsMasterClient);
     }
 
-    public override void OnMasterClientSwitched(Player newMasterClient){
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
         startGameButton.SetActive(PhotonNetwork.IsMasterClient);
     }
 
-    public override void OnCreateRoomFailed(short returnCode, string message){
-        errorText.text="Room Creation Failed: "+ message;
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        errorText.text = "Room Creation Failed: " + message;
         MenuManager.Instance.OpenMenu("error");
     }
 
-    public void LeaveRoom(){
+    public void LeaveRoom()
+    {
         PhotonNetwork.LeaveRoom();
         MenuManager.Instance.OpenMenu("loading");
     }
 
-    public override void OnLeftRoom(){
+    public override void OnLeftRoom()
+    {
         MenuManager.Instance.OpenMenu("title");
     }
 
-    public override void OnRoomListUpdate(List<RoomInfo> roomList) {
-        foreach(Transform trans in roomListContent){
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        foreach (Transform trans in roomListContent)
+        {
             Destroy(trans.gameObject);
         }
-        for(int i=0; i< roomList.Count;i++){
-            if(roomList[i].RemovedFromList){
+        for (int i = 0; i < roomList.Count; i++)
+        {
+            if (roomList[i].RemovedFromList)
+            {
                 continue;
             }
-            Instantiate(roomListItemPrefab,roomListContent).GetComponent<RoomListItem>().SetUp(roomList[i]);
+            Instantiate(roomListItemPrefab, roomListContent).GetComponent<RoomListItem>().SetUp(roomList[i]);
         }
     }
 
-    public void JoinRoom(RoomInfo info){
+    public void JoinRoom(RoomInfo info)
+    {
         PhotonNetwork.JoinRoom(info.Name);
         MenuManager.Instance.OpenMenu("loading");
-        
+
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer){
-        Instantiate(PlayerListItemPrefab,playerListContent).GetComponent<PlayerListItem>().SetUp(newPlayer);
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Instantiate(PlayerListItemPrefab, playerListContent).GetComponent<PlayerListItem>().SetUp(newPlayer);
     }
 
-    public void StartGame(){
+    public void StartGame()
+    {
+        if (string.IsNullOrEmpty(usernameField.text))
+        {
+            myProfile.username = "GUEST" + Random.Range(0, 100).ToString("000");
+        }
+        else
+        {
+            myProfile.username = usernameField.text;
+        }
         PhotonNetwork.LoadLevel(1);
+    }
+    private void FixedUpdate() {
+        if (string.IsNullOrEmpty(usernameField.text))
+        {
+            myProfile.username = "Player" + Random.Range(0, 100).ToString("000");
+            PhotonNetwork.NickName = "Player" + Random.Range(0, 100).ToString("000");
+            Debug.Log("username empty");
+        }
+        else
+        {
+            myProfile.username = usernameField.text;
+            PhotonNetwork.NickName = usernameField.text;
+            Debug.Log(myProfile.username);
+        }
     }
 }
