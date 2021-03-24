@@ -37,6 +37,9 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] GameObject PlayerListItemPrefab;
 
     [SerializeField] GameObject startGameButton;
+    public Slider maxPlayersSlider;
+    public TMP_Text maxPlayerValue;
+    public int numOfPlayers=10;
 
     //public InputField usernameField;
     public static ProfileData myProfile = new ProfileData();
@@ -67,12 +70,20 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
+        RoomOptions options=new RoomOptions();
+        options.MaxPlayers=(byte) maxPlayersSlider.value;
+        ExitGames.Client.Photon.Hashtable properties=new ExitGames.Client.Photon.Hashtable();
+        properties.Add("map",0);
+        options.CustomRoomProperties=properties;
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {
             return;
         }
-        PhotonNetwork.CreateRoom(roomNameInputField.text);
+        PhotonNetwork.CreateRoom(roomNameInputField.text,options);
         MenuManager.Instance.OpenMenu("loading");
+    }
+    public void ChangeMaxPlayersSlider(float t_value){
+        maxPlayerValue.text=Mathf.RoundToInt(t_value).ToString();
     }
 
     public override void OnJoinedRoom()
