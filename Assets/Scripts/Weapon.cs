@@ -30,6 +30,7 @@ public class Weapon : MonoBehaviourPunCallbacks
     {
         foreach (Gun i in loadout)
         {
+            if(photonView.IsMine)
             i.InitAmmo();
         }
         Equip(0);

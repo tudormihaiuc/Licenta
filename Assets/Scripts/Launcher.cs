@@ -24,6 +24,12 @@ public class ProfileData
         this.xp=xp;
     }
 }
+
+[System.Serializable]
+    public class MapData{
+        public string name;
+        public int scene;
+    }
 public class Launcher : MonoBehaviourPunCallbacks
 {
     public static Launcher Instance;
@@ -43,6 +49,9 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     //public InputField usernameField;
     public static ProfileData myProfile = new ProfileData();
+    public TMP_Text mapValue;
+    public MapData[] maps;
+    private int currentMap=0;
 
     void Awake()
     {
@@ -67,13 +76,21 @@ public class Launcher : MonoBehaviourPunCallbacks
         MenuManager.Instance.OpenMenu("title");
         Debug.Log("Joined Lobyy");
     }
+    public void ChangeMap(){
+        currentMap++;
+        if(currentMap>=maps.Length){
+            currentMap=0;
+        }
+        mapValue.text="MAP: "+maps[currentMap].name.ToUpper();
+    }
 
     public void CreateRoom()
     {
         RoomOptions options=new RoomOptions();
         options.MaxPlayers=(byte) maxPlayersSlider.value;
+        options.CustomRoomPropertiesForLobby=new string[] {"map"};
         ExitGames.Client.Photon.Hashtable properties=new ExitGames.Client.Photon.Hashtable();
-        properties.Add("map",0);
+        properties.Add("map",currentMap);
         options.CustomRoomProperties=properties;
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {
@@ -155,7 +172,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        PhotonNetwork.LoadLevel(1);
+        PhotonNetwork.LoadLevel(maps[currentMap].scene);
     }
     private void FixedUpdate() {
         if (string.IsNullOrEmpty(usernameField.text))
