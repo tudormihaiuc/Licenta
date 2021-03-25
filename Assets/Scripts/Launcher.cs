@@ -83,6 +83,9 @@ public class Launcher : MonoBehaviourPunCallbacks
         }
         mapValue.text="MAP: "+maps[currentMap].name.ToUpper();
     }
+    public void GetMap(){
+        
+    }
 
     public void CreateRoom()
     {
@@ -90,7 +93,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         options.MaxPlayers=(byte) maxPlayersSlider.value;
         options.CustomRoomPropertiesForLobby=new string[] {"map"};
         ExitGames.Client.Photon.Hashtable properties=new ExitGames.Client.Photon.Hashtable();
-        properties.Add("map",currentMap);
+        properties.Add("map",maps[currentMap].name);
         options.CustomRoomProperties=properties;
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {

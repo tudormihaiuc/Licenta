@@ -15,7 +15,7 @@ public class Gun : ScriptableObject
     public int damage;
     public int ammo;
     public int clipSize;
-    public int clip;//current bullets in gthe clip
+    public int clip;//current bullets in the clip
     public int stash;//current ammo
     public float reload;
     [Range(0,1)] public float mainFOV;
@@ -51,5 +51,8 @@ public class Gun : ScriptableObject
     }
     public int GetClip(){
         return clip;
+    }
+    public int GetClipSize(){
+        return clipSize;
     }
 }

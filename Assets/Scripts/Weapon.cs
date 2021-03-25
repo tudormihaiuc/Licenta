@@ -122,6 +122,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                 {
                     //loadout[currentIndex].Reload();
                     //StartCoroutine(Reload(loadout[currentIndex].reload));
+                    if(loadout[currentIndex].GetClip()!=loadout[currentIndex].GetClipSize())
                     photonView.RPC("ReloadRPC", RpcTarget.All);
                 }
                 //cooldown
