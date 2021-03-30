@@ -46,6 +46,9 @@ MonoBehaviour:
   - ReloadRPC
   - Aim
   - SyncProfile
+  - Jump
+  - PlayFootstep
+  - PlayJumpSound
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

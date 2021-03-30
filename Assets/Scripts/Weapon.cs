@@ -123,7 +123,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                     //loadout[currentIndex].Reload();
                     //StartCoroutine(Reload(loadout[currentIndex].reload));
                     if(loadout[currentIndex].GetClip()!=loadout[currentIndex].GetClipSize())
-                    photonView.RPC("ReloadRPC", RpcTarget.All);
+                        photonView.RPC("ReloadRPC", RpcTarget.All);
                 }
                 //cooldown
                 if (currentCooldown > 0)
@@ -215,7 +215,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             GameObject t_newHole = Instantiate(bulletholePrefab, t_hit.point + t_hit.normal * 0.001f, Quaternion.identity) as GameObject;
             t_newHole.transform.LookAt(t_hit.point + t_hit.normal);
-            Destroy(t_newHole, 5f);
+            Destroy(t_newHole, 1.5f);
             if (photonView.IsMine)
             {
                 if (currentIndex == 1)
@@ -245,7 +245,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         sfx.pitch = 1 - currentGunData.soundRandomization + Random.Range(-currentGunData.soundRandomization, currentGunData.soundRandomization);
         sfx.volume = currentGunData.gunVolume;
         sfx.Play();
-        Debug.Log("gunshot" + currentGunData.gunshotSound.name);
+        //Debug.Log("gunshot" + currentGunData.gunshotSound.name);
         //gun effects
         currentWeapon.transform.Rotate(-loadout[currentIndex].recoil, 0, 0);
         currentWeapon.transform.position -= currentWeapon.transform.forward * loadout[currentIndex].kickback;

@@ -609,6 +609,11 @@ MonoBehaviour:
     level: 0
     xp: 0
   playerUsername: {fileID: 2521201103335906003}
+  deathSound: {fileID: 8300000, guid: f9b3149d1d86de8498742742d6161a5e, type: 3}
+  footstep: {fileID: 8300000, guid: ee8919ee6b792b647bbdcfd2369685b8, type: 3}
+  jumpSound: {fileID: 8300000, guid: 5e83b18855bd5f446a21344016da8734, type: 3}
+  landSound: {fileID: 8300000, guid: cd8921f973ae3b84cbd14c0ab28dad4e, type: 3}
+  sfx: {fileID: 4440567976825287400}
 --- !u!54 &5600819630047208163
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -847,8 +852,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_PlayOnAwake: 0
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -857,9 +862,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 15
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -892,7 +897,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

@@ -74,6 +74,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Animator animator;
     public ProfileData playerProfile;
     public TextMeshPro playerUsername;
+    public AudioClip deathSound;
+    public AudioClip footstep;
+    public AudioClip jumpSound;
+    public AudioClip landSound;
+    public AudioSource sfx;
 
 
     void Awake()
@@ -127,6 +132,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         playerProfile=new ProfileData(p_username,p_level,p_xp);
         playerUsername.text=playerProfile.username;
     }
+    [PunRPC]
+    public void PlayFootstep(){
+        sfx.PlayOneShot(footstep);
+    }
+    [PunRPC]
+    public void PlayJumpSound(){
+        sfx.PlayOneShot(jumpSound);
+    }
+    public void PlayLandSound(){
+        if(grounded)
+            sfx.PlayOneShot(landSound);
+    }
     void Update()
     {
         //if i dont use this if each player would control eachother player
@@ -136,6 +153,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
         if(photonView.IsMine){
+            if(grounded==true && rb.velocity.magnitude>2f){
+                //photonView.RPC("PlayFootstep", RpcTarget.All);
+            }
             photonView.RPC("SyncProfile",RpcTarget.All,Launcher.myProfile.username,Launcher.myProfile.level,Launcher.myProfile.xp);
         }
         float t_hmove = Input.GetAxisRaw("Horizontal");
@@ -203,6 +223,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             }
             rb.AddForce(Vector3.up * jumpForce);
             currentRecovery = 0f;
+            //player.GetComponent<Animator>().Play("Jump",0,0);
+            //photonView.RPC("Jump", RpcTarget.All);
         }
         //HeadBob
         if (!grounded)//flying
@@ -278,12 +300,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     }
 
+    [PunRPC]
     void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && grounded)
-        {
-            rb.AddForce(transform.up * jumpForce);
-        }
+        player.GetComponent<Animator>().Play("Jump",0,0);
     }
 
     /*void EquipItem(int _index){
@@ -438,6 +458,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         //animations
+        animator.SetBool("jump",grounded);
+        animator.SetBool("sprint",isSprinting);
         float t_anim_horizontal=0f;
         float t_anim_vertical=0f;
         if(grounded){
@@ -506,6 +528,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         if (photonView.IsMine)
         {
             currentHealth -= p_damage;
+            sfx.PlayOneShot(deathSound);
             Debug.Log(currentHealth);
             RefreshHealthBar();
             if (currentHealth <= 0)
