@@ -270,6 +270,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         RefreshHealthBar();
         if (photonView.IsMine)
             weaponUI.RefreshAmmo(uiAmmo);
+
+        
+        //animator.SetBool("crouch",crouch);
     }
     //for syncing
     //we are using slerp to make estimations because when syncing we can loose some packeges and if we lose a couple is no big deal
@@ -345,10 +348,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         bool slide = Input.GetKey(KeyCode.LeftControl);
         bool aim = Input.GetMouseButton(1);
         bool jet = Input.GetKey(KeyCode.Space);
+        //bool crouch = Input.GetKeyDown(KeyCode.LeftControl);
         bool isJumping = jump && grounded;
         bool isSprinting = sprint && !isJumping && grounded && t_vmove > 0;
         bool isSliding = isSprinting && slide && !sliding;
         isAiming = aim && !isSliding && !isSprinting;
+        //bool isCrouching = crouch && !isSprinting && grounded && !isJumping;
         //we are doing the calculations here because the method Update() is called every farme 
         //and we dont want our calculations be impacted by the frame rate
         //rb.MovePosition(rb.position+transform.TransformDirection(moveAmount)*Time.fixedDeltaTime);
@@ -460,6 +465,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //animations
         animator.SetBool("jump",grounded);
         animator.SetBool("sprint",isSprinting);
+        animator.SetBool("slide",sliding);
+        //animator.SetBool("crouch",isCrouching);
         float t_anim_horizontal=0f;
         float t_anim_vertical=0f;
         if(grounded){
@@ -470,6 +477,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         animator.SetFloat("VelX",t_anim_horizontal);
         animator.SetFloat("VelY",t_anim_vertical);
+        //photonView.RPC("SyncAnimations", RpcTarget.All, isSprinting,t_hmove,t_vmove);
     }
 
     void HeadBob(float p_z, float p_x_intensity, float p_y_intensity)
@@ -568,12 +576,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             standingCollider.SetActive(false);
             crouchingCollider.SetActive(true);
             weaponParentCurrPos += Vector3.down * crouchAmount;
+            animator.SetBool("crouch",true);
         }
         else
         {
             crouchingCollider.SetActive(false);
             standingCollider.SetActive(true);
             weaponParentCurrPos -= Vector3.down * crouchAmount;
+           animator.SetBool("crouch",false);
         }
     }
 }

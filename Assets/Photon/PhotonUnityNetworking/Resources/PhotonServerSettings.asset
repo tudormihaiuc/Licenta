@@ -49,6 +49,7 @@ MonoBehaviour:
   - Jump
   - PlayFootstep
   - PlayJumpSound
+  - SyncAnimations
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
