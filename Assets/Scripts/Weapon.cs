@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class Weapon : MonoBehaviourPunCallbacks
 {
-    public Gun[] loadout;
+    public List<Gun> loadout;
     public Transform weaponParent;
 
     private GameObject currentWeapon;
@@ -25,18 +25,21 @@ public class Weapon : MonoBehaviourPunCallbacks
     private Image hitmarkerImage;
     private float hitmarkerWait;
     public AudioClip hitmarkerSound;
+
     // Start is called before the first frame update
     void Start()
     {
         foreach (Gun i in loadout)
         {
-            if(photonView.IsMine)
-            i.InitAmmo();
+            if (photonView.IsMine)
+                i.InitAmmo();
         }
-        Equip(0);
+        Equip(1);
         hitmarkerImage = GameObject.Find("HUD/Hitmarker/Image").GetComponent<Image>();
+        Debug.Log("hitmarker image found");
         hitmarkerImage.color = new Color(1, 1, 1, 0);
     }
+
     // Update is called once per frame
     void Update()
     {
@@ -59,8 +62,8 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             if (photonView.IsMine)
             {
-                    photonView.RPC("Aim", RpcTarget.All, Input.GetMouseButton(1));
-                
+                photonView.RPC("Aim", RpcTarget.All, Input.GetMouseButton(1));
+
                 //Aim(Input.GetMouseButton(1));
                 if (loadout[currentIndex].burst != 1)
                 {
@@ -122,7 +125,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                 {
                     //loadout[currentIndex].Reload();
                     //StartCoroutine(Reload(loadout[currentIndex].reload));
-                    if(loadout[currentIndex].GetClip()!=loadout[currentIndex].GetClipSize())
+                    if (loadout[currentIndex].GetClip() != loadout[currentIndex].GetClipSize())
                         photonView.RPC("ReloadRPC", RpcTarget.All);
                 }
                 //cooldown
@@ -142,6 +145,7 @@ public class Weapon : MonoBehaviourPunCallbacks
             else
             {
                 hitmarkerImage.color = Color.Lerp(hitmarkerImage.color, new Color(1, 1, 1, 0), Time.deltaTime * 2f);
+                //Debug.Log("start changing color");
             }
         }
 
@@ -151,6 +155,7 @@ public class Weapon : MonoBehaviourPunCallbacks
         }
 
     }
+
     [PunRPC]
     void Aim(bool p_isAiming)
     {
@@ -218,11 +223,11 @@ public class Weapon : MonoBehaviourPunCallbacks
             Destroy(t_newHole, 1.5f);
             if (photonView.IsMine)
             {
-                if (currentIndex == 1)
+                if (loadout[currentIndex].name == "Pistol")
                 {
                     currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
                 }
-                else if (currentIndex == 0)
+                else if (loadout[currentIndex].name == "Machine Gun")
                 {
                     currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
                 }
@@ -230,7 +235,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                 if (t_hit.collider.gameObject.layer == 11)
                 {
                     //RPC call to dmg player
-                    t_hit.collider.transform.root.gameObject.GetPhotonView().RPC("TakeDamage", RpcTarget.All, loadout[currentIndex].damage);
+                    t_hit.collider.transform.root.gameObject.GetPhotonView().RPC("TakeDamage", RpcTarget.All, loadout[currentIndex].damage,PhotonNetwork.LocalPlayer.ActorNumber);
                     //hitmarker
                     hitmarkerImage.color = Color.white;
                     sfx.PlayOneShot(hitmarkerSound);
@@ -252,16 +257,15 @@ public class Weapon : MonoBehaviourPunCallbacks
         if (currentGunData.recovery)
         {
             currentWeapon.GetComponent<Animator>().Play("Recovery", 0, 0);
-            Debug.Log("Recovery anim");
         }
 
 
 
     }
     [PunRPC]
-    private void TakeDamage(int p_damage)
+    private void TakeDamage(int p_damage,int p_actor)
     {
-        GetComponent<PlayerController>().TakeDamage(p_damage);
+        GetComponent<PlayerController>().TakeDamage(p_damage,p_actor);
     }
 
     [PunRPC]
@@ -274,15 +278,15 @@ public class Weapon : MonoBehaviourPunCallbacks
     {
         isReloading = true;
         //the lines with SetActive is a placeholder for the reload anim
-        if (currentIndex == 0)
+        if (loadout[currentIndex].name == "Pistol")
         {
             currentWeapon.GetComponent<Animator>().Play("Reload1", 0, 0);
         }
-        else if (currentIndex == 1)
+        else if (loadout[currentIndex].name == "Machine Gun")
         {
             currentWeapon.GetComponent<Animator>().Play("Reload1", 0, 0);
         }
-        else if (currentIndex == 2)
+        else if (loadout[currentIndex].name == "Shotgun")
         {
             currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
         }
@@ -302,5 +306,35 @@ public class Weapon : MonoBehaviourPunCallbacks
         int t_clip = loadout[currentIndex].GetClip();
         int t_stash = loadout[currentIndex].GetStash();
         p_text.text = t_clip.ToString("D2") + "/" + t_stash.ToString("D2");
+    }
+    public void GetAmmo()
+    {
+        foreach (Gun i in loadout)
+        {
+            if (photonView.IsMine)
+                i.InitAmmoWithoutReloading();
+        }
+    }
+    [PunRPC]
+    void PickupWeapon(string name)
+    {
+        //find weapon from a library
+        Gun newWeapon = GunLibrary.FindGun(name);
+        newWeapon.InitAmmo();
+        if (loadout.Count >= 2)
+        {
+            if (newWeapon.name != loadout[1].name)
+            {
+                //replace weapon that we are holding
+                loadout[1] = newWeapon;
+                Equip(currentIndex);
+            }
+        }
+        else
+        {
+            loadout.Add(newWeapon);
+            Equip(loadout.Count - 1);
+        }
+        //add weapon to the loadout
     }
 }

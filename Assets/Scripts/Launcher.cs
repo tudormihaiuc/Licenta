@@ -13,23 +13,26 @@ public class ProfileData
     public int level;
     public int xp;
 
-    public ProfileData(){
-        this.username="GUEST USER";
-        this.level=0;
-        this.xp=0;
+    public ProfileData()
+    {
+        this.username = "GUEST USER";
+        this.level = 0;
+        this.xp = 0;
     }
-    public ProfileData(string username,int level,int xp){
-        this.username=username;
-        this.level=level;
-        this.xp=xp;
+    public ProfileData(string username, int level, int xp)
+    {
+        this.username = username;
+        this.level = level;
+        this.xp = xp;
     }
 }
 
 [System.Serializable]
-    public class MapData{
-        public string name;
-        public int scene;
-    }
+public class MapData
+{
+    public string name;
+    public int scene;
+}
 public class Launcher : MonoBehaviourPunCallbacks
 {
     public static Launcher Instance;
@@ -45,19 +48,21 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] GameObject startGameButton;
     public Slider maxPlayersSlider;
     public TMP_Text maxPlayerValue;
-    public int numOfPlayers=10;
+    public int numOfPlayers = 10;
 
     //public InputField usernameField;
     public static ProfileData myProfile = new ProfileData();
     public TMP_Text mapValue;
     public MapData[] maps;
-    private int currentMap=0;
+    private int currentMap = 0;
 
     void Awake()
     {
         Instance = this;
-        myProfile=Data.LoadProfile();
-        usernameField.text=myProfile.username;
+        myProfile = Data.LoadProfile();
+        if(!string.IsNullOrEmpty(myProfile.username))
+            usernameField.text = myProfile.username;
+    
     }
     void Start()
     {
@@ -76,34 +81,39 @@ public class Launcher : MonoBehaviourPunCallbacks
         MenuManager.Instance.OpenMenu("title");
         Debug.Log("Joined Lobyy");
     }
-    public void ChangeMap(){
+    public void ChangeMap()
+    {
         currentMap++;
-        if(currentMap>=maps.Length){
-            currentMap=0;
+        if (currentMap >= maps.Length)
+        {
+            currentMap = 0;
         }
-        mapValue.text="MAP: "+maps[currentMap].name.ToUpper();
+        mapValue.text = "MAP: " + maps[currentMap].name.ToUpper();
     }
-    public void GetMap(){
-        
+    public void GetMap()
+    {
+
     }
 
     public void CreateRoom()
     {
-        RoomOptions options=new RoomOptions();
-        options.MaxPlayers=(byte) maxPlayersSlider.value;
-        options.CustomRoomPropertiesForLobby=new string[] {"map"};
-        ExitGames.Client.Photon.Hashtable properties=new ExitGames.Client.Photon.Hashtable();
-        properties.Add("map",maps[currentMap].name);
-        options.CustomRoomProperties=properties;
+        VerifyUsername();
+        RoomOptions options = new RoomOptions();
+        options.MaxPlayers = (byte)maxPlayersSlider.value;
+        options.CustomRoomPropertiesForLobby = new string[] { "map" };
+        ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
+        properties.Add("map", maps[currentMap].name);
+        options.CustomRoomProperties = properties;
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {
             return;
         }
-        PhotonNetwork.CreateRoom(roomNameInputField.text,options);
+        PhotonNetwork.CreateRoom(roomNameInputField.text, options);
         MenuManager.Instance.OpenMenu("loading");
     }
-    public void ChangeMaxPlayersSlider(float t_value){
-        maxPlayerValue.text=Mathf.RoundToInt(t_value).ToString();
+    public void ChangeMaxPlayersSlider(float t_value)
+    {
+        maxPlayerValue.text = Mathf.RoundToInt(t_value).ToString();
     }
 
     public override void OnJoinedRoom()
@@ -131,6 +141,11 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         errorText.text = "Room Creation Failed: " + message;
+        MenuManager.Instance.OpenMenu("error");
+    }
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        errorText.text = "Room is full!";
         MenuManager.Instance.OpenMenu("error");
     }
 
@@ -163,8 +178,18 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void JoinRoom(RoomInfo info)
     {
-        PhotonNetwork.JoinRoom(info.Name);
-        MenuManager.Instance.OpenMenu("loading");
+        if (info.MaxPlayers <= info.PlayerCount)
+        {
+            errorText.text = "Room is full!";
+            MenuManager.Instance.OpenMenu("error");
+            Debug.Log("room is full");
+        }
+        else
+        {
+            VerifyUsername();
+            PhotonNetwork.JoinRoom(info.Name);
+            MenuManager.Instance.OpenMenu("loading");
+        }
 
     }
 
@@ -176,18 +201,23 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void StartGame()
     {
         PhotonNetwork.LoadLevel(maps[currentMap].scene);
+        VerifyUsername();
     }
-    private void FixedUpdate() {
+    private void FixedUpdate()
+    {
+        //VerifyUsername();
+    }
+
+    private void VerifyUsername(){
         if (string.IsNullOrEmpty(usernameField.text))
         {
-            //myProfile.username = "Player" + Random.Range(0, 100).ToString("000");
-            PhotonNetwork.NickName = "Player" + Random.Range(0, 100).ToString("000");
+            myProfile.username = "Player" + Random.Range(0, 100).ToString("000");
+            PhotonNetwork.NickName= "Player" + Random.Range(0, 100).ToString("000");
         }
         else
         {
             myProfile.username = usernameField.text;
-            PhotonNetwork.NickName = usernameField.text;
-            //Debug.Log(myProfile.username);
+            PhotonNetwork.NickName=usernameField.text;
         }
     }
 }

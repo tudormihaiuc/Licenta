@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Shotgun
   prefab: {fileID: 5488962309786991816, guid: bf3ece10c1aa42949905afbb0635737d, type: 3}
+  display: {fileID: 1620738597167581378, guid: 41d8ece92c29f5d429bd5a25598e60b4, type: 3}
   firerate: 0.1
   aimSpeed: 15
   bloom: 30
@@ -23,7 +24,7 @@ MonoBehaviour:
   ammo: 25
   clipSize: 5
   clip: 5
-  stash: 9
+  stash: 25
   reload: 3
   mainFOV: 0
   weaponFOV: 0

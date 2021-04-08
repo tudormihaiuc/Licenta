@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Pistol
   prefab: {fileID: 5488962309786991816, guid: 14218bd0e755e8b479416199156c404c, type: 3}
+  display: {fileID: 5997963999281708634, guid: 07bae4a7a0deb9840a66c5f8cd25c066, type: 3}
   firerate: 0.25
   aimSpeed: 10
   bloom: 5
@@ -31,3 +32,5 @@ MonoBehaviour:
   gunshotSound: {fileID: 8300000, guid: 0994d799b1bd9324db8f629afc6e8bd3, type: 3}
   soundRandomization: 0.15
   gunVolume: 0.5
+  pellets: 0
+  recovery: 0

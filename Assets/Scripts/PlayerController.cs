@@ -78,7 +78,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     public AudioClip footstep;
     public AudioClip jumpSound;
     public AudioClip landSound;
+    public AudioClip healSound;
     public AudioSource sfx;
+    private Weapon weaponAmmo;
+    //public GameObject display;
+    public float cooldown;
+    private float wait;
+    private bool isDisabled;
+    GameObject x;
+    private Text uiUsername;
 
 
     void Awake()
@@ -104,7 +112,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             uiHealthbar = GameObject.Find("HUD/Health/Bar").transform;
             uiAmmo = GameObject.Find("HUD/Ammo/Text").GetComponent<Text>();
+            uiUsername = GameObject.Find("HUD/Username/Text").GetComponent<Text>();
             RefreshHealthBar();
+            uiUsername.text=Launcher.myProfile.username;
             uiFuelbar = GameObject.Find("HUD/Fuel/Bar").transform;
             
             animator=GetComponent<Animator>();
@@ -265,7 +275,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //test healthbar
         if (Input.GetKeyDown(KeyCode.U))
         {
-            TakeDamage(100);
+            TakeDamage(100,-1);
         }
         RefreshHealthBar();
         if (photonView.IsMine)
@@ -531,18 +541,23 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
     }
-    public void TakeDamage(int p_damage)
+    public void TakeDamage(int p_damage, int p_actor)
     {
         if (photonView.IsMine)
         {
             currentHealth -= p_damage;
-            sfx.PlayOneShot(deathSound);
+            //sfx.PlayOneShot(deathSound);
             Debug.Log(currentHealth);
             RefreshHealthBar();
             if (currentHealth <= 0)
             {
+                sfx.PlayOneShot(deathSound);
                 Debug.Log("You died");
                 PhotonNetwork.Destroy(gameObject);
+                playerManager.ChangeStat_S(PhotonNetwork.LocalPlayer.ActorNumber,1,1);
+                if(p_actor>=0){
+                    playerManager.ChangeStat_S(p_actor,0,1);
+                }
                 playerManager.CreateController();
             }
         }
@@ -585,5 +600,37 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             weaponParentCurrPos -= Vector3.down * crouchAmount;
            animator.SetBool("crouch",false);
         }
+    }
+    private void OnTriggerEnter(Collider other) {
+        //float wait;
+        
+        if(other.gameObject.tag.Equals("Ammo")){
+            Debug.Log("entered collision");
+            weaponAmmo=GetComponent<Weapon>();
+            weaponAmmo.GetAmmo();
+            x=other.transform.parent.gameObject;
+            //other.transform.parent.gameObject.SetActive(false);
+            DisableAndEnable();
+        }
+        if(other.gameObject.tag.Equals("Heal")){
+            currentHealth=maxHealth;
+            sfx.PlayOneShot(healSound);
+            x=other.transform.parent.gameObject;
+            //photonView.RPC("DisableAndEnable",RpcTarget.All);
+            DisableAndEnable();
+        }
+        //Destroy(other.gameObject);
+    }
+    [PunRPC]
+    IEnumerator Wait(){
+        Debug.Log("before wait");
+        x.SetActive(false);
+        yield return new WaitForSeconds(120);
+        x.SetActive(true);
+        Debug.Log("after wait");
+    }
+    [PunRPC]
+    public void DisableAndEnable(){
+        StartCoroutine(Wait());
     }
 }

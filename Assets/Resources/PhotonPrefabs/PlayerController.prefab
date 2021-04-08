@@ -291,7 +291,7 @@ GameObject:
   - component: {fileID: 5644579421599620853}
   m_Layer: 9
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -415,7 +415,7 @@ GameObject:
   - component: {fileID: 1714893159988644311}
   m_Layer: 9
   m_Name: StandingCollider
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -507,7 +507,7 @@ GameObject:
   - component: {fileID: -1086072372492320763}
   m_Layer: 9
   m_Name: PlayerController
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -610,10 +610,12 @@ MonoBehaviour:
     xp: 0
   playerUsername: {fileID: 2521201103335906003}
   deathSound: {fileID: 8300000, guid: f9b3149d1d86de8498742742d6161a5e, type: 3}
-  footstep: {fileID: 8300000, guid: ee8919ee6b792b647bbdcfd2369685b8, type: 3}
+  footstep: {fileID: 8300000, guid: c7c8ed18e76118541a4940b0f8b83e98, type: 3}
   jumpSound: {fileID: 8300000, guid: 5e83b18855bd5f446a21344016da8734, type: 3}
   landSound: {fileID: 8300000, guid: cd8921f973ae3b84cbd14c0ab28dad4e, type: 3}
+  healSound: {fileID: 8300000, guid: 329386c25b4a8ab4ea01da088c2cb69a, type: 3}
   sfx: {fileID: 4440567976825287400}
+  cooldown: 0
 --- !u!54 &5600819630047208163
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -658,9 +660,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadout:
-  - {fileID: 11400000, guid: de311cb56b2c57447ad44398cf9d26b0, type: 2}
   - {fileID: 11400000, guid: 0a48143032091a5489d732f128b69871, type: 2}
-  - {fileID: 11400000, guid: cc3368cc3390b5b4d81c58decc062486, type: 2}
+  - {fileID: 11400000, guid: de311cb56b2c57447ad44398cf9d26b0, type: 2}
   weaponParent: {fileID: 5694571401538462992}
   bulletholePrefab: {fileID: 1281906636452159743, guid: f9e9187d21871fe4b80d6779dfcd0541,
     type: 3}
@@ -739,7 +740,7 @@ GameObject:
   - component: {fileID: 4399827589502188672}
   m_Layer: 9
   m_Name: model1red
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -865,7 +866,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 0.25
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1295,7 +1296,7 @@ GameObject:
   - component: {fileID: 3150179430513369751}
   m_Layer: 9
   m_Name: CrouchingCollider
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

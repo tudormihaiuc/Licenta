@@ -8,6 +8,9 @@ public class Sway : MonoBehaviour
    public float smooth;
    private Quaternion origin_rotation;
    public bool isMine;
+   public AudioClip pistolReloadSound;
+    public AudioClip pumpSound;
+    public AudioSource sfx;
 
     private void Start() {
         origin_rotation=transform.localRotation;
@@ -34,4 +37,10 @@ public class Sway : MonoBehaviour
        //rotate towards target rotation
        transform.localRotation=Quaternion.Lerp(transform.localRotation,target_rotation,Time.deltaTime*smooth);
    }
+   public void PlayPistolReloadSound(){
+        sfx.PlayOneShot(pistolReloadSound);
+    }
+    public void PlayPumpSound(){
+        sfx.PlayOneShot(pumpSound);
+    }
 }

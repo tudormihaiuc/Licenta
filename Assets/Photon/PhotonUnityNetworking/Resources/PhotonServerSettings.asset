@@ -50,6 +50,11 @@ MonoBehaviour:
   - PlayFootstep
   - PlayJumpSound
   - SyncAnimations
+  - PickupWeapon
+  - Disable
+  - DisableAndEnable
+  - Enable
+  - Wait
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -7,6 +7,7 @@ public class Gun : ScriptableObject
 {
     public string name;
     public GameObject prefab;
+    public GameObject display;
     public float firerate;
     public float aimSpeed;
     public float bloom;
@@ -45,6 +46,9 @@ public class Gun : ScriptableObject
     public void InitAmmo(){
         stash=ammo;
         clip=clipSize;
+    }
+    public void InitAmmoWithoutReloading(){
+        stash=ammo;
     }
     public int GetStash(){
         return stash;
