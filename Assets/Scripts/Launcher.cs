@@ -55,14 +55,15 @@ public class Launcher : MonoBehaviourPunCallbacks
     public TMP_Text mapValue;
     public MapData[] maps;
     private int currentMap = 0;
+    public TMP_Text modeValue;
 
     void Awake()
     {
         Instance = this;
         myProfile = Data.LoadProfile();
-        if(!string.IsNullOrEmpty(myProfile.username))
+        if (!string.IsNullOrEmpty(myProfile.username))
             usernameField.text = myProfile.username;
-    
+
     }
     void Start()
     {
@@ -201,6 +202,8 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void StartGame()
     {
         PhotonNetwork.LoadLevel(maps[currentMap].scene);
+        PhotonNetwork.CurrentRoom.IsVisible = false;
+        PhotonNetwork.CurrentRoom.IsOpen = false;
         VerifyUsername();
     }
     private void FixedUpdate()
@@ -208,16 +211,25 @@ public class Launcher : MonoBehaviourPunCallbacks
         //VerifyUsername();
     }
 
-    private void VerifyUsername(){
+    private void VerifyUsername()
+    {
         if (string.IsNullOrEmpty(usernameField.text))
         {
             myProfile.username = "Player" + Random.Range(0, 100).ToString("000");
-            PhotonNetwork.NickName= "Player" + Random.Range(0, 100).ToString("000");
+            PhotonNetwork.NickName = "Player" + Random.Range(0, 100).ToString("000");
         }
         else
         {
             myProfile.username = usernameField.text;
-            PhotonNetwork.NickName=usernameField.text;
+            PhotonNetwork.NickName = usernameField.text;
         }
+    }
+    public void ChangeMode(){
+        int newMode=(int)GameSettings.GameMode+1;
+        if(newMode>=System.Enum.GetValues(typeof(GameMode)).Length){
+            newMode=0;
+        }
+        GameSettings.GameMode=(GameMode)newMode;
+        modeValue.text="MODE: "+System.Enum.GetName(typeof(GameMode),newMode);
     }
 }

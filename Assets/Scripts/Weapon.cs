@@ -25,6 +25,8 @@ public class Weapon : MonoBehaviourPunCallbacks
     private Image hitmarkerImage;
     private float hitmarkerWait;
     public AudioClip hitmarkerSound;
+    Coroutine lastRoutine = null;
+    public GameObject bulletHoldeFx;
 
     // Start is called before the first frame update
     void Start()
@@ -80,16 +82,14 @@ public class Weapon : MonoBehaviourPunCallbacks
                                 t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.right;
                                 t_bloom -= firingSpot;
                                 t_bloom.Normalize();
-                                //Shoot(firingSpot,fireDirection);
-                                photonView.RPC("Shoot", RpcTarget.All, firingSpot, t_bloom);
-                                //Shoot();
+                                if (isReloading == false)
+                                    photonView.RPC("Shoot", RpcTarget.All, firingSpot, t_bloom);
                                 //photonView.RPC("SyncGunPosition",RpcTarget.All);
                             }
                         }
                         else
                         {
-                            //loadout[currentIndex].Reload();
-                            StartCoroutine(Reload(loadout[currentIndex].reload));
+                            ReloadRPC();
                         }
                     }
                 }
@@ -108,23 +108,21 @@ public class Weapon : MonoBehaviourPunCallbacks
                                 t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * camera.transform.right;
                                 t_bloom -= firingSpot;
                                 t_bloom.Normalize();
-                                //Shoot(firingSpot,fireDirection);
                                 photonView.RPC("Shoot", RpcTarget.All, firingSpot, t_bloom);
-                                //Shoot();
                                 //photonView.RPC("SyncGunPosition",RpcTarget.All);
                             }
                         }
                         else
                         {
                             //loadout[currentIndex].Reload();
-                            StartCoroutine(Reload(loadout[currentIndex].reload));
+                            ReloadRPC();
                         }
                     }
                 }
                 if (Input.GetKeyDown(KeyCode.R))
                 {
                     //loadout[currentIndex].Reload();
-                    //StartCoroutine(Reload(loadout[currentIndex].reload));
+                    
                     if (loadout[currentIndex].GetClip() != loadout[currentIndex].GetClipSize())
                         photonView.RPC("ReloadRPC", RpcTarget.All);
                 }
@@ -185,7 +183,8 @@ public class Weapon : MonoBehaviourPunCallbacks
         {
             if (isReloading)
             {
-                StopCoroutine("Reload");
+                StopCoroutine(lastRoutine);
+                isReloading=false;
             }
             Destroy(currentWeapon);
         }
@@ -203,6 +202,15 @@ public class Weapon : MonoBehaviourPunCallbacks
     [PunRPC]
     void Shoot(Vector3 firingPoint, Vector3 firingDirection)
     {
+        if (currentWeapon != null)
+        {
+            if (isReloading)
+            {
+                Debug.Log("stop reloading");
+                StopCoroutine(lastRoutine);
+                isReloading=false;
+            }
+        }
         //Transform t_spawn=transform.Find("Cameras/NormalCamera");
         //bloom
         /*Vector3 t_bloom=t_spawn.position+t_spawn.forward*1000f;
@@ -219,7 +227,9 @@ public class Weapon : MonoBehaviourPunCallbacks
         if (Physics.Raycast(shooterRay, out t_hit, 1000f, canBeShot))
         {
             GameObject t_newHole = Instantiate(bulletholePrefab, t_hit.point + t_hit.normal * 0.001f, Quaternion.identity) as GameObject;
+            GameObject t_newBulletFx= Instantiate(bulletHoldeFx, t_hit.point + t_hit.normal * 0.001f, Quaternion.identity) as GameObject;
             t_newHole.transform.LookAt(t_hit.point + t_hit.normal);
+            t_newBulletFx.transform.LookAt(t_hit.point + t_hit.normal);
             Destroy(t_newHole, 1.5f);
             if (photonView.IsMine)
             {
@@ -235,7 +245,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                 if (t_hit.collider.gameObject.layer == 11)
                 {
                     //RPC call to dmg player
-                    t_hit.collider.transform.root.gameObject.GetPhotonView().RPC("TakeDamage", RpcTarget.All, loadout[currentIndex].damage,PhotonNetwork.LocalPlayer.ActorNumber);
+                    t_hit.collider.transform.root.gameObject.GetPhotonView().RPC("TakeDamage", RpcTarget.All, loadout[currentIndex].damage, PhotonNetwork.LocalPlayer.ActorNumber);
                     //hitmarker
                     hitmarkerImage.color = Color.white;
                     sfx.PlayOneShot(hitmarkerSound);
@@ -263,9 +273,9 @@ public class Weapon : MonoBehaviourPunCallbacks
 
     }
     [PunRPC]
-    private void TakeDamage(int p_damage,int p_actor)
+    private void TakeDamage(int p_damage, int p_actor)
     {
-        GetComponent<PlayerController>().TakeDamage(p_damage,p_actor);
+        GetComponent<PlayerController>().TakeDamage(p_damage, p_actor);
     }
 
     [PunRPC]
@@ -276,6 +286,7 @@ public class Weapon : MonoBehaviourPunCallbacks
 
     IEnumerator Reload(float p_wait)
     {
+        if(loadout[currentIndex].GetStash()>0){
         isReloading = true;
         //the lines with SetActive is a placeholder for the reload anim
         if (loadout[currentIndex].name == "Pistol")
@@ -294,12 +305,12 @@ public class Weapon : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(p_wait);//wait for p_wait ammount of time without freezing the script
         loadout[currentIndex].ReloadGun();
         currentWeapon.SetActive(true);
-        isReloading = false;
+        isReloading = false;}
     }
     [PunRPC]
     private void ReloadRPC()
     {
-        StartCoroutine(Reload(loadout[currentIndex].reload));
+        lastRoutine= StartCoroutine(Reload(loadout[currentIndex].reload));
     }
     public void RefreshAmmo(Text p_text)
     {

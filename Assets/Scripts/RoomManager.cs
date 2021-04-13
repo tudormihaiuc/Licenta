@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -9,6 +9,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
 {
 
     public static RoomManager Instance;
+    public Launcher launcher;
 
     void Awake() {
         if(Instance)//checks if another RoomManager exists
@@ -32,17 +33,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode){
         if(scene.buildIndex==1 || scene.buildIndex==2){//here we will instanciate the PlayerManager prefab
-            PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerManager"),Vector3.zero,Quaternion.identity);
+            //PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerManager"),Vector3.zero,Quaternion.identity);
+            Destroy(Instance);
         }
     }
-    void Start()
-    {
-        
-    }
-
-
-    void Update()
-    {
-        
-    }
+    
 }

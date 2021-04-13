@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class Sway : MonoBehaviour
+public class Sway : MonoBehaviourPunCallbacks
 {
    public float intesnsity;
    public float smooth;
@@ -11,9 +12,11 @@ public class Sway : MonoBehaviour
    public AudioClip pistolReloadSound;
     public AudioClip pumpSound;
     public AudioSource sfx;
+    public ParticleSystem muzzleFlash;
 
     private void Start() {
         origin_rotation=transform.localRotation;
+        //MuzzleFlashStart();
     }
    private void Update() {
        UpdateSway();
@@ -42,5 +45,17 @@ public class Sway : MonoBehaviour
     }
     public void PlayPumpSound(){
         sfx.PlayOneShot(pumpSound);
+    }
+    [PunRPC]
+    public void MuzzleFlashStart(){
+        muzzleFlash.Play();
+        //MuzzleFlashDisable();
+    }
+
+    public void MuzzleFlashDisable(){
+        muzzleFlash.enableEmission=false;
+    }
+    public void MuzzleFlashEnable(){
+        muzzleFlash.enableEmission=true;
     }
 }

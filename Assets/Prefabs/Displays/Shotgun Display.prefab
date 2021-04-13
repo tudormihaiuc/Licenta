@@ -297,7 +297,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1620738597167581378}
-  m_LocalRotation: {x: 0, y: -0.19465849, z: 0, w: 0.98087114}
+  m_LocalRotation: {x: 0, y: 0.63099414, z: 0, w: -0.7757876}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -323,6 +323,7 @@ MonoBehaviour:
   pistolReloadSound: {fileID: 8300000, guid: 45d2dd155fe82fb4184e562518db94f5, type: 3}
   pumpSound: {fileID: 8300000, guid: 7a0c34181e4660b489f0c0f5f42e21dc, type: 3}
   sfx: {fileID: 1098247804556006911}
+  muzzleFlash: {fileID: 0}
 --- !u!95 &1050747064342125862
 Animator:
   serializedVersion: 3

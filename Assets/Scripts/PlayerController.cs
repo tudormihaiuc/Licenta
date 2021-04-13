@@ -87,7 +87,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private bool isDisabled;
     GameObject x;
     private Text uiUsername;
-
+    public ParticleSystem jetpack;
 
     void Awake()
     {
@@ -108,16 +108,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         weaponParentOrigin = weaponParent.localPosition;
         weaponParentCurrPos = weaponParentOrigin;
         currentFuel = maxFuel;
+        //jetpack.Play();
+        //jetpack.enableEmission=false;
+        photonView.RPC("StartJetpack", RpcTarget.All);
+        photonView.RPC("DisableJetpack", RpcTarget.All);
         if (photonView.IsMine)
         {
             uiHealthbar = GameObject.Find("HUD/Health/Bar").transform;
             uiAmmo = GameObject.Find("HUD/Ammo/Text").GetComponent<Text>();
             uiUsername = GameObject.Find("HUD/Username/Text").GetComponent<Text>();
             RefreshHealthBar();
-            uiUsername.text=Launcher.myProfile.username;
+            uiUsername.text = Launcher.myProfile.username;
             uiFuelbar = GameObject.Find("HUD/Fuel/Bar").transform;
-            
-            animator=GetComponent<Animator>();
+
+            animator = GetComponent<Animator>();
             //EquipItem(0);//equip first item in the item array
         }
         else
@@ -127,31 +131,52 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             gameObject.layer = 11;
             standingCollider.layer = 11;
             crouchingCollider.layer = 11;
-            ChangeLayer(mesh.transform,11);
+            ChangeLayer(mesh.transform, 11);
         }
+    }
+    [PunRPC]
+    private void StartJetpack()
+    {
+        jetpack.Play();
+    }
+    [PunRPC]
+    private void EnableJetpack()
+    {
+        jetpack.enableEmission = true;
+    }
+    [PunRPC]
+    private void DisableJetpack()
+    {
+        jetpack.enableEmission = false;
     }
 
-    private void ChangeLayer(Transform p_transform,int p_layer){
-        p_transform.gameObject.layer=p_layer;
-        foreach(Transform t in p_transform){
-            ChangeLayer(t,p_layer);
+    private void ChangeLayer(Transform p_transform, int p_layer)
+    {
+        p_transform.gameObject.layer = p_layer;
+        foreach (Transform t in p_transform)
+        {
+            ChangeLayer(t, p_layer);
         }
     }
     [PunRPC]
-    private void SyncProfile(string p_username,int p_level,int p_xp){
-        playerProfile=new ProfileData(p_username,p_level,p_xp);
-        playerUsername.text=playerProfile.username;
+    private void SyncProfile(string p_username, int p_level, int p_xp)
+    {
+        playerProfile = new ProfileData(p_username, p_level, p_xp);
+        playerUsername.text = playerProfile.username;
     }
     [PunRPC]
-    public void PlayFootstep(){
+    public void PlayFootstep()
+    {
         sfx.PlayOneShot(footstep);
     }
     [PunRPC]
-    public void PlayJumpSound(){
+    public void PlayJumpSound()
+    {
         sfx.PlayOneShot(jumpSound);
     }
-    public void PlayLandSound(){
-        if(grounded)
+    public void PlayLandSound()
+    {
+        if (grounded)
             sfx.PlayOneShot(landSound);
     }
     void Update()
@@ -162,11 +187,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             RefreshMultiplayerState();
             return;
         }
-        if(photonView.IsMine){
-            if(grounded==true && rb.velocity.magnitude>2f){
+        if (photonView.IsMine)
+        {
+            if (grounded == true && rb.velocity.magnitude > 2f)
+            {
                 //photonView.RPC("PlayFootstep", RpcTarget.All);
             }
-            photonView.RPC("SyncProfile",RpcTarget.All,Launcher.myProfile.username,Launcher.myProfile.level,Launcher.myProfile.xp);
+            photonView.RPC("SyncProfile", RpcTarget.All, Launcher.myProfile.username, Launcher.myProfile.level, Launcher.myProfile.xp);
         }
         float t_hmove = Input.GetAxisRaw("Horizontal");
         float t_vmove = Input.GetAxisRaw("Vertical");
@@ -239,7 +266,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //HeadBob
         if (!grounded)//flying
         {
-           HeadBob(idleCounter, 0.02f, 0.02f);
+            HeadBob(idleCounter, 0.02f, 0.02f);
             weaponParent.localPosition = Vector3.Lerp(weaponParent.localPosition, targetWeaponBobPosition, Time.deltaTime * 2f);
         }//sliding
         else if (sliding)
@@ -275,13 +302,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //test healthbar
         if (Input.GetKeyDown(KeyCode.U))
         {
-            TakeDamage(100,-1);
+            TakeDamage(100, -1);
         }
         RefreshHealthBar();
         if (photonView.IsMine)
             weaponUI.RefreshAmmo(uiAmmo);
 
-        
+
         //animator.SetBool("crouch",crouch);
     }
     //for syncing
@@ -316,7 +343,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void Jump()
     {
-        player.GetComponent<Animator>().Play("Jump",0,0);
+        player.GetComponent<Animator>().Play("Jump", 0, 0);
     }
 
     /*void EquipItem(int _index){
@@ -450,6 +477,16 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             rb.AddForce(Vector3.up * jetForce * Time.fixedDeltaTime, ForceMode.Acceleration);
             currentFuel = Mathf.Max(0, currentFuel - Time.fixedDeltaTime);
         }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            //jetpack.enableEmission=true;
+            photonView.RPC("EnableJetpack", RpcTarget.All);
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            //jetpack.enableEmission=false;
+            photonView.RPC("DisableJetpack", RpcTarget.All);
+        }
         uiFuelbar.localScale = new Vector3(currentFuel / maxFuel, 1, 1);
 
         //Camera stuff
@@ -463,30 +500,31 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             normalCam.fieldOfView = Mathf.Lerp(normalCam.fieldOfView, baseFOV, Time.deltaTime * 8f);
             if (crouched)
             {
-                normalCam.transform.localPosition = Vector3.Lerp(normalCam.transform.localPosition, origin + Vector3.down * crouchAmount, Time.deltaTime*6f);
+                normalCam.transform.localPosition = Vector3.Lerp(normalCam.transform.localPosition, origin + Vector3.down * crouchAmount, Time.deltaTime * 6f);
             }
             else
             {
-                normalCam.transform.localPosition = Vector3.Lerp(normalCam.transform.localPosition, origin, Time.deltaTime*6f);
+                normalCam.transform.localPosition = Vector3.Lerp(normalCam.transform.localPosition, origin, Time.deltaTime * 6f);
             }
 
         }
 
         //animations
-        animator.SetBool("jump",grounded);
-        animator.SetBool("sprint",isSprinting);
-        animator.SetBool("slide",sliding);
+        animator.SetBool("jump", grounded);
+        animator.SetBool("sprint", isSprinting);
+        animator.SetBool("slide", sliding);
         //animator.SetBool("crouch",isCrouching);
-        float t_anim_horizontal=0f;
-        float t_anim_vertical=0f;
-        if(grounded){
+        float t_anim_horizontal = 0f;
+        float t_anim_vertical = 0f;
+        if (grounded)
+        {
             //t_anim_horizontal=t_direction.y;
             //t_anim_vertical=t_direction.x;
-            t_anim_horizontal=t_hmove;
-            t_anim_vertical=t_vmove;
+            t_anim_horizontal = t_hmove;
+            t_anim_vertical = t_vmove;
         }
-        animator.SetFloat("VelX",t_anim_horizontal);
-        animator.SetFloat("VelY",t_anim_vertical);
+        animator.SetFloat("VelX", t_anim_horizontal);
+        animator.SetFloat("VelY", t_anim_vertical);
         //photonView.RPC("SyncAnimations", RpcTarget.All, isSprinting,t_hmove,t_vmove);
     }
 
@@ -554,9 +592,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 sfx.PlayOneShot(deathSound);
                 Debug.Log("You died");
                 PhotonNetwork.Destroy(gameObject);
-                playerManager.ChangeStat_S(PhotonNetwork.LocalPlayer.ActorNumber,1,1);
-                if(p_actor>=0){
-                    playerManager.ChangeStat_S(p_actor,0,1);
+                playerManager.ChangeStat_S(PhotonNetwork.LocalPlayer.ActorNumber, 1, 1);
+                if (p_actor >= 0)
+                {
+                    playerManager.ChangeStat_S(p_actor, 0, 1);
                 }
                 playerManager.CreateController();
             }
@@ -591,46 +630,54 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             standingCollider.SetActive(false);
             crouchingCollider.SetActive(true);
             weaponParentCurrPos += Vector3.down * crouchAmount;
-            animator.SetBool("crouch",true);
+            animator.SetBool("crouch", true);
         }
         else
         {
             crouchingCollider.SetActive(false);
             standingCollider.SetActive(true);
             weaponParentCurrPos -= Vector3.down * crouchAmount;
-           animator.SetBool("crouch",false);
+            animator.SetBool("crouch", false);
         }
     }
-    private void OnTriggerEnter(Collider other) {
+    private void OnTriggerEnter(Collider other)
+    {
         //float wait;
-        
-        if(other.gameObject.tag.Equals("Ammo")){
+
+        if (other.gameObject.tag.Equals("Ammo"))
+        {
             Debug.Log("entered collision");
-            weaponAmmo=GetComponent<Weapon>();
+            weaponAmmo = GetComponent<Weapon>();
             weaponAmmo.GetAmmo();
-            x=other.transform.parent.gameObject;
+            x = other.transform.parent.gameObject;
             //other.transform.parent.gameObject.SetActive(false);
             DisableAndEnable();
         }
-        if(other.gameObject.tag.Equals("Heal")){
-            currentHealth=maxHealth;
-            sfx.PlayOneShot(healSound);
-            x=other.transform.parent.gameObject;
-            //photonView.RPC("DisableAndEnable",RpcTarget.All);
-            DisableAndEnable();
+        if (other.gameObject.tag.Equals("Heal"))
+        {
+            if (currentHealth < maxHealth)
+            {
+                currentHealth = maxHealth;
+                sfx.PlayOneShot(healSound);
+                x = other.transform.parent.gameObject;
+                //photonView.RPC("DisableAndEnable",RpcTarget.All);
+                DisableAndEnable();
+            }
         }
         //Destroy(other.gameObject);
     }
     [PunRPC]
-    IEnumerator Wait(){
+    IEnumerator Wait()
+    {
         Debug.Log("before wait");
         x.SetActive(false);
-        yield return new WaitForSeconds(120);
+        yield return new WaitForSeconds(30);
         x.SetActive(true);
         Debug.Log("after wait");
     }
     [PunRPC]
-    public void DisableAndEnable(){
+    public void DisableAndEnable()
+    {
         StartCoroutine(Wait());
     }
 }

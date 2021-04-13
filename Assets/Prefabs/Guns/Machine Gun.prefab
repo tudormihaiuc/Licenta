@@ -438,6 +438,7 @@ Transform:
   - {fileID: 4164816852382359818}
   - {fileID: 7046628716837411261}
   - {fileID: 1829068714022387698}
+  - {fileID: 1167612415783519629}
   m_Father: {fileID: 8124479781448151905}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2212,6 +2213,7 @@ MonoBehaviour:
   pistolReloadSound: {fileID: 8300000, guid: 45d2dd155fe82fb4184e562518db94f5, type: 3}
   pumpSound: {fileID: 0}
   sfx: {fileID: 8455824655669258614}
+  muzzleFlash: {fileID: 1167612415801868495}
 --- !u!95 &5391806733423569063
 Animator:
   serializedVersion: 3
@@ -3135,3 +3137,84 @@ Transform:
   m_Father: {fileID: 1829068714022387698}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &527915783540872548
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 4550112922973057403}
+    m_Modifications:
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.3825
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.2189
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.86188
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.000000295028
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 8.792485e-15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.000000029802354
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686520913767288009, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+        type: 3}
+      propertyPath: m_Name
+      value: WFX_MF FPS RIFLE1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1ef4fa5aa377f534db34d63cc1d93def, type: 3}
+--- !u!198 &1167612415801868495 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1686520913751856555, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+    type: 3}
+  m_PrefabInstance: {fileID: 527915783540872548}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1167612415783519629 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1686520913767059689, guid: 1ef4fa5aa377f534db34d63cc1d93def,
+    type: 3}
+  m_PrefabInstance: {fileID: 527915783540872548}
+  m_PrefabAsset: {fileID: 0}
