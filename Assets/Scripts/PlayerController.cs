@@ -310,6 +310,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
 
         //animator.SetBool("crouch",crouch);
+        
     }
     //for syncing
     //we are using slerp to make estimations because when syncing we can loose some packeges and if we lose a couple is no big deal
@@ -525,7 +526,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         animator.SetFloat("VelX", t_anim_horizontal);
         animator.SetFloat("VelY", t_anim_vertical);
-        //photonView.RPC("SyncAnimations", RpcTarget.All, isSprinting,t_hmove,t_vmove);
+        //photonView.RPC("SyncAnimations", RpcTarget.All, isSprinting,t_hmove,t_vmove);*/
     }
 
     void HeadBob(float p_z, float p_x_intensity, float p_y_intensity)

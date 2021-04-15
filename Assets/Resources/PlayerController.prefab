@@ -545,7 +545,7 @@ MonoBehaviour:
   slideModifier: 2.25
   normalCam: {fileID: 7723748194411070000}
   weaponCam: {fileID: 0}
-  jetForce: 500
+  jetForce: 550
   jetWait: 0.5
   maxFuel: 2
   jetRecovery: 5
