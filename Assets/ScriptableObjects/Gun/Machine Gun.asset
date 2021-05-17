@@ -15,16 +15,16 @@ MonoBehaviour:
   name: Machine Gun
   prefab: {fileID: 5488962309786991816, guid: 748514086f0c72e438ff2594b8952c1d, type: 3}
   display: {fileID: 5997963999281708634, guid: 07bae4a7a0deb9840a66c5f8cd25c066, type: 3}
-  firerate: 0.15
+  firerate: 0.12
   aimSpeed: 10
   bloom: 10
   recoil: 4
   kickback: 0.05
   damage: 100
-  ammo: 150
-  clipSize: 30
-  clip: 26
-  stash: 139
+  ammo: 105
+  clipSize: 35
+  clip: 13
+  stash: 150
   reload: 2
   mainFOV: 0
   weaponFOV: 0

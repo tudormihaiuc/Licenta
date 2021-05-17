@@ -411,7 +411,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         bool detectWin = false;
         foreach (PlayerInfo p in playerInfo)
         {
-            if (p.deaths >= 2)
+            if (p.kills >= 10)
             {
                 detectWin = true;
                 Debug.Log("detected win");

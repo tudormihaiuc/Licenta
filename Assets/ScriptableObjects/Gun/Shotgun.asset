@@ -21,10 +21,10 @@ MonoBehaviour:
   recoil: 3
   kickback: 0.05
   damage: 100
-  ammo: 25
+  ammo: 20
   clipSize: 5
-  clip: 5
-  stash: 20
+  clip: 4
+  stash: 25
   reload: 3
   mainFOV: 0
   weaponFOV: 0

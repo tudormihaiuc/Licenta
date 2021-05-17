@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     public AudioClip jumpSound;
     public AudioClip landSound;
     public AudioClip healSound;
+    public AudioClip jetpackSound;
     public AudioSource sfx;
     private Weapon weaponAmmo;
     //public GameObject display;
@@ -173,6 +174,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     public void PlayJumpSound()
     {
         sfx.PlayOneShot(jumpSound);
+    }
+    [PunRPC]
+    public void PlayJetpackSound()
+    {
+        sfx.PlayOneShot(jetpackSound);
     }
     public void PlayLandSound()
     {
@@ -482,6 +488,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             //jetpack.enableEmission=true;
             photonView.RPC("EnableJetpack", RpcTarget.All);
+            photonView.RPC("PlayJetpackSound", RpcTarget.All);
         }
         if (Input.GetKeyUp(KeyCode.Space))
         {
@@ -650,6 +657,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             Debug.Log("entered collision");
             weaponAmmo = GetComponent<Weapon>();
             weaponAmmo.GetAmmo();
+            sfx.PlayOneShot(landSound);
             x = other.transform.parent.gameObject;
             //other.transform.parent.gameObject.SetActive(false);
             DisableAndEnable();

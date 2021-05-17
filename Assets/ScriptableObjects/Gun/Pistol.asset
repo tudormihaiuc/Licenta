@@ -20,11 +20,11 @@ MonoBehaviour:
   bloom: 5
   recoil: 10
   kickback: 0.15
-  damage: 100
-  ammo: 16
+  damage: 150
+  ammo: 24
   clipSize: 8
   clip: 8
-  stash: 5
+  stash: 16
   reload: 2
   mainFOV: 0
   weaponFOV: 0

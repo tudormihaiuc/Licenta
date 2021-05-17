@@ -240,6 +240,9 @@ public class Weapon : MonoBehaviourPunCallbacks
                 else if (loadout[currentIndex].name == "Machine Gun")
                 {
                     currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
+                }else if (loadout[currentIndex].name == "M4")
+                {
+                    currentWeapon.GetComponent<Animator>().Play("Shoot", 0, 0);
                 }
                 //shooting a player
                 if (t_hit.collider.gameObject.layer == 11)
@@ -298,6 +301,9 @@ public class Weapon : MonoBehaviourPunCallbacks
             currentWeapon.GetComponent<Animator>().Play("Reload1", 0, 0);
         }
         else if (loadout[currentIndex].name == "Shotgun")
+        {
+            currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
+        }else if (loadout[currentIndex].name == "M4")
         {
             currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
         }

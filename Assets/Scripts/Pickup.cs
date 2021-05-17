@@ -23,7 +23,7 @@ public class Pickup : MonoBehaviourPunCallbacks
             Debug.Log("Player entered collider");
             Weapon weaponController = other.attachedRigidbody.gameObject.GetComponent<Weapon>();
             weaponController.photonView.RPC("PickupWeapon", RpcTarget.All, gun.name);
-            //weapon.GetAmmo();
+            weapon.GetAmmo();
             photonView.RPC("Disable", RpcTarget.All);
         }
     }

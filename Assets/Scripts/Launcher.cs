@@ -91,10 +91,6 @@ public class Launcher : MonoBehaviourPunCallbacks
         }
         mapValue.text = "MAP: " + maps[currentMap].name.ToUpper();
     }
-    public void GetMap()
-    {
-
-    }
 
     public void CreateRoom()
     {
