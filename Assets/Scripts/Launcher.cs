@@ -97,9 +97,10 @@ public class Launcher : MonoBehaviourPunCallbacks
         VerifyUsername();
         RoomOptions options = new RoomOptions();
         options.MaxPlayers = (byte)maxPlayersSlider.value;
-        options.CustomRoomPropertiesForLobby = new string[] { "map" };
+        options.CustomRoomPropertiesForLobby = new string[] { "map","mode" };
         ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
         properties.Add("map", maps[currentMap].name);
+        properties.Add("mode",GameSettings.GameMode);
         options.CustomRoomProperties = properties;
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {
@@ -227,5 +228,12 @@ public class Launcher : MonoBehaviourPunCallbacks
         }
         GameSettings.GameMode=(GameMode)newMode;
         modeValue.text="MODE: "+System.Enum.GetName(typeof(GameMode),newMode);
+        if(GameSettings.GameMode==GameMode.F4A){
+            maxPlayersSlider.gameObject.SetActive(true);
+        }else{
+            maxPlayersSlider.gameObject.SetActive(false);
+            maxPlayersSlider.value=1;
+            maxPlayerValue.text="1";
+        }
     }
 }

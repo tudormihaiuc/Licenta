@@ -7,6 +7,9 @@ TagManager:
   - SpawnPoint
   - Ammo
   - Heal
+  - Fire
+  - Enemy
+  - EnemyProjectile
   layers:
   - Default
   - TransparentFX
@@ -21,8 +24,8 @@ TagManager:
   - Gun
   - Player
   - PostProcessing
-  - 
-  - 
+  - AI
+  - EnemyProjectile
   - 
   - 
   - 

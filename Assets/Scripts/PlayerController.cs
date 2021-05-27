@@ -80,6 +80,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     public AudioClip landSound;
     public AudioClip healSound;
     public AudioClip jetpackSound;
+    public AudioClip explosionSound;
     public AudioSource sfx;
     private Weapon weaponAmmo;
     //public GameObject display;
@@ -89,6 +90,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     GameObject x;
     private Text uiUsername;
     public ParticleSystem jetpack;
+    public GameObject explosionFx;
 
     void Awake()
     {
@@ -109,8 +111,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         weaponParentOrigin = weaponParent.localPosition;
         weaponParentCurrPos = weaponParentOrigin;
         currentFuel = maxFuel;
-        //jetpack.Play();
-        //jetpack.enableEmission=false;
         photonView.RPC("StartJetpack", RpcTarget.All);
         photonView.RPC("DisableJetpack", RpcTarget.All);
         if (photonView.IsMine)
@@ -123,7 +123,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             uiFuelbar = GameObject.Find("HUD/Fuel/Bar").transform;
 
             animator = GetComponent<Animator>();
-            //EquipItem(0);//equip first item in the item array
         }
         else
         {
@@ -231,29 +230,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
         SetY();
         SetX();
-        //UpdateCursorLock();
-        //Move();
-        //Jump();
-        /*for(int i=0;i<items.Length;i++){
-            if(Input.GetKeyDown((i+1).ToString())){
-                EquipItem(i);
-                break;
-            }
-        }
-        if(Input.GetAxisRaw("Mouse ScrollWheel")>0f){
-            if(itemIndex>=items.Length-1){
-                EquipItem(0);
-            }else{
-                EquipItem(itemIndex+1);
-                }
-        }
-        if(Input.GetAxisRaw("Mouse ScrollWheel")<0f){
-            if(itemIndex<=0){
-                EquipItem(items.Length-1);
-            }else{
-                EquipItem(itemIndex-1);
-                }
-        }*/
         if (isCrouching)
         {
             photonView.RPC("SetCrouch", RpcTarget.All, !crouched);
@@ -266,8 +242,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             }
             rb.AddForce(Vector3.up * jumpForce);
             currentRecovery = 0f;
-            //player.GetComponent<Animator>().Play("Jump",0,0);
-            //photonView.RPC("Jump", RpcTarget.All);
         }
         //HeadBob
         if (!grounded)//flying
@@ -316,7 +290,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
 
         //animator.SetBool("crouch",crouch);
-        
+
     }
     //for syncing
     //we are using slerp to make estimations because when syncing we can loose some packeges and if we lose a couple is no big deal
@@ -334,12 +308,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     {
         grounded = _grounded;
     }
-    /*void Look(){
-        transform.Rotate(Vector3.up*Input.GetAxisRaw("Mouse X")*mouseSensitivity);
-        verticalLookRotation+=Input.GetAxisRaw("Mouse Y")*mouseSensitivity;
-        verticalLookRotation=Mathf.Clamp(verticalLookRotation,-90f,90f);
-        cameraHolder.transform.localEulerAngles=Vector3.left*verticalLookRotation;
-    }*/
     void Move()
     {
         Vector3 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
@@ -352,24 +320,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     {
         player.GetComponent<Animator>().Play("Jump", 0, 0);
     }
-
-    /*void EquipItem(int _index){
-        if(_index==previousItemIndex){
-            return;
-        }
-        itemIndex=_index;
-        items[itemIndex].itemGameObject.SetActive(true);
-        if(previousItemIndex!=-1){
-            items[previousItemIndex].itemGameObject.SetActive(false);
-        }
-        previousItemIndex=itemIndex;
-        if(PV.IsMine){//check if is the local player
-            //send the item index over the network
-            Hashtable hash=new Hashtable();
-            hash.Add("itemIndex",itemIndex);
-            PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-        }
-    }*/
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
@@ -392,15 +342,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         bool slide = Input.GetKey(KeyCode.LeftControl);
         bool aim = Input.GetMouseButton(1);
         bool jet = Input.GetKey(KeyCode.Space);
-        //bool crouch = Input.GetKeyDown(KeyCode.LeftControl);
         bool isJumping = jump && grounded;
         bool isSprinting = sprint && !isJumping && grounded && t_vmove > 0;
         bool isSliding = isSprinting && slide && !sliding;
         isAiming = aim && !isSliding && !isSprinting;
-        //bool isCrouching = crouch && !isSprinting && grounded && !isJumping;
         //we are doing the calculations here because the method Update() is called every farme 
         //and we dont want our calculations be impacted by the frame rate
-        //rb.MovePosition(rb.position+transform.TransformDirection(moveAmount)*Time.fixedDeltaTime);
         if (Pause.paused)
         {
             t_hmove = 0f;
@@ -521,19 +468,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         animator.SetBool("jump", grounded);
         animator.SetBool("sprint", isSprinting);
         animator.SetBool("slide", sliding);
-        //animator.SetBool("crouch",isCrouching);
         float t_anim_horizontal = 0f;
         float t_anim_vertical = 0f;
         if (grounded)
         {
-            //t_anim_horizontal=t_direction.y;
-            //t_anim_vertical=t_direction.x;
             t_anim_horizontal = t_hmove;
             t_anim_vertical = t_vmove;
         }
         animator.SetFloat("VelX", t_anim_horizontal);
         animator.SetFloat("VelY", t_anim_vertical);
-        //photonView.RPC("SyncAnimations", RpcTarget.All, isSprinting,t_hmove,t_vmove);*/
     }
 
     void HeadBob(float p_z, float p_x_intensity, float p_y_intensity)
@@ -659,7 +602,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             weaponAmmo.GetAmmo();
             sfx.PlayOneShot(landSound);
             x = other.transform.parent.gameObject;
-            //other.transform.parent.gameObject.SetActive(false);
             DisableAndEnable();
         }
         if (other.gameObject.tag.Equals("Heal"))
@@ -669,8 +611,22 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 currentHealth = maxHealth;
                 sfx.PlayOneShot(healSound);
                 x = other.transform.parent.gameObject;
-                //photonView.RPC("DisableAndEnable",RpcTarget.All);
                 DisableAndEnable();
+            }
+        }
+        if (other.gameObject.tag.Equals("EnemyProjectile"))
+        {
+            Debug.Log("grenade");
+            currentHealth -= 100;
+            GameObject t_newExplosionFx = Instantiate(explosionFx, other.gameObject.transform.position + transform.forward, Quaternion.identity) as GameObject;
+            sfx.PlayOneShot(explosionSound);
+            if (currentHealth <= 0)
+            {
+                sfx.PlayOneShot(deathSound);
+                
+                Debug.Log("You died");
+                PhotonNetwork.Destroy(gameObject);
+                playerManager.CreateController();
             }
         }
         //Destroy(other.gameObject);

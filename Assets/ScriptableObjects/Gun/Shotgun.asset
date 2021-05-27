@@ -31,6 +31,6 @@ MonoBehaviour:
   burst: 0
   gunshotSound: {fileID: 8300000, guid: a307341a649fd124682e16b4e7b8840d, type: 3}
   soundRandomization: 0.1
-  gunVolume: 0.8
+  gunVolume: 0.3
   pellets: 10
   recovery: 1

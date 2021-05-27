@@ -6,12 +6,6 @@ public class Pickups : MonoBehaviour
 {
     public GameObject[] pickups;
     // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         foreach(GameObject pickup in pickups){

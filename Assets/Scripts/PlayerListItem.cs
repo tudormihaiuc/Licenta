@@ -5,12 +5,7 @@ using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
-/*public class ProfileData
-{
-    public string username;
-    public int level;
-    public int xp;
-}*/
+
 public class PlayerListItem : MonoBehaviourPunCallbacks
 {
     [SerializeField] TMP_Text text;

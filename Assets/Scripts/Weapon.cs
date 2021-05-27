@@ -192,12 +192,10 @@ public class Weapon : MonoBehaviourPunCallbacks
         GameObject t_newWeapon = Instantiate(loadout[p_ind].prefab, weaponParent.position, weaponParent.rotation, weaponParent) as GameObject;
         t_newWeapon.transform.localPosition = Vector3.zero;
         t_newWeapon.transform.localEulerAngles = Vector3.zero;
-        //if(photonView.IsMine)
         t_newWeapon.GetComponent<Sway>().isMine = photonView.IsMine;
         t_newWeapon.GetComponent<Animator>().Play("Equip", 0, 0);
         currentWeapon = t_newWeapon;
         currentGunData = loadout[p_ind];
-        // currWeaponPosition.transform.localPosition=currentWeapon.transform.localPosition;
     }
     [PunRPC]
     void Shoot(Vector3 firingPoint, Vector3 firingDirection)
@@ -211,14 +209,6 @@ public class Weapon : MonoBehaviourPunCallbacks
                 isReloading=false;
             }
         }
-        //Transform t_spawn=transform.Find("Cameras/NormalCamera");
-        //bloom
-        /*Vector3 t_bloom=t_spawn.position+t_spawn.forward*1000f;
-        t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*t_spawn.up;
-        t_bloom+=Random.Range(-loadout[currentIndex].bloom,loadout[currentIndex].bloom)*t_spawn.right;
-        t_bloom-=t_spawn.position;
-        t_bloom.Normalize();*/
-        //raycast
         //rate of fire
         currentCooldown = loadout[currentIndex].firerate;
         //raycast
@@ -250,6 +240,12 @@ public class Weapon : MonoBehaviourPunCallbacks
                     //RPC call to dmg player
                     t_hit.collider.transform.root.gameObject.GetPhotonView().RPC("TakeDamage", RpcTarget.All, loadout[currentIndex].damage, PhotonNetwork.LocalPlayer.ActorNumber);
                     //hitmarker
+                    hitmarkerImage.color = Color.white;
+                    sfx.PlayOneShot(hitmarkerSound);
+                    hitmarkerWait = 0.5f;
+                }
+                if(t_hit.collider.gameObject.layer==13){
+                    t_hit.collider.transform.root.gameObject.GetComponent<EnemyAi>().AiTakeDamage(loadout[currentIndex].damage);
                     hitmarkerImage.color = Color.white;
                     sfx.PlayOneShot(hitmarkerSound);
                     hitmarkerWait = 0.5f;

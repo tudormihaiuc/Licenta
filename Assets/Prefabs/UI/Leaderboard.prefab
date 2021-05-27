@@ -343,7 +343,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: FREE FOR ALL
+  m_Text: F4A
 --- !u!1 &1351005634087354490
 GameObject:
   m_ObjectHideFlags: 0

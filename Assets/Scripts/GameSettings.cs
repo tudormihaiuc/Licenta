@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum GameMode{
         F4A=0,
-        TDM=1
+        SOLO=1
     }
 public class GameSettings : MonoBehaviour
 {

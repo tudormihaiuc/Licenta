@@ -49,7 +49,6 @@ public class Sway : MonoBehaviourPunCallbacks
     [PunRPC]
     public void MuzzleFlashStart(){
         muzzleFlash.Play();
-        //MuzzleFlashDisable();
     }
 
     public void MuzzleFlashDisable(){
