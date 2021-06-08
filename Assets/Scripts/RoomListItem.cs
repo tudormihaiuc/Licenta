@@ -5,13 +5,16 @@ using Photon.Realtime;
 using TMPro;
 using Photon.Pun;
 
+//handles the dispay the active rooms in the Find Room menu
 public class RoomListItem : MonoBehaviour
 {
-    [SerializeField] TMP_Text text;
-    [SerializeField] TMP_Text text2;
-    [SerializeField] TMP_Text text3;
-    [SerializeField] TMP_Text text4;
+    [SerializeField] TMP_Text text;//name of the room
+    [SerializeField] TMP_Text text2;//player count
+    [SerializeField] TMP_Text text3;//map name
+    [SerializeField] TMP_Text text4;//game mode
     public RoomInfo info;
+
+    //sets up the room with the given info
     public void SetUp(RoomInfo _info)
     {
 

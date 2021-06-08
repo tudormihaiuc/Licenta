@@ -544,7 +544,6 @@ MonoBehaviour:
   slideLenght: 1
   slideModifier: 2.25
   normalCam: {fileID: 7723748194411070000}
-  weaponCam: {fileID: 0}
   jetForce: 550
   jetWait: 5
   maxFuel: 2
@@ -562,7 +561,6 @@ MonoBehaviour:
   jetpackSound: {fileID: 8300000, guid: 124b603135cd8b84ebb47066f6b7edf6, type: 3}
   explosionSound: {fileID: 8300000, guid: 2d34e8332dd94924bb04aea165585764, type: 3}
   sfx: {fileID: 4440567976825287400}
-  cooldown: 0
   jetpack: {fileID: 3201300935363834221}
   explosionFx: {fileID: 100014, guid: 5332791ebce075d4a9e56f4581e7fb47, type: 3}
 --- !u!54 &5600819630047208163
@@ -612,6 +610,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0a48143032091a5489d732f128b69871, type: 2}
   - {fileID: 11400000, guid: de311cb56b2c57447ad44398cf9d26b0, type: 2}
   weaponParent: {fileID: 5694571401538462992}
+  bulletHoldeFx: {fileID: 100002, guid: 00fedc70b62a31e448e8ccc298257b56, type: 3}
   bulletholePrefab: {fileID: 1281906636452159743, guid: f9e9187d21871fe4b80d6779dfcd0541,
     type: 3}
   canBeShot:
@@ -623,7 +622,6 @@ MonoBehaviour:
   currentGunData: {fileID: 0}
   sfx: {fileID: 4440567976825287400}
   hitmarkerSound: {fileID: 8300000, guid: 702916468a225434b94e006ffa5c358b, type: 3}
-  bulletHoldeFx: {fileID: 100002, guid: 00fedc70b62a31e448e8ccc298257b56, type: 3}
 --- !u!95 &6525526904619277771
 Animator:
   serializedVersion: 3

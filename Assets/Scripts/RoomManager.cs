@@ -5,15 +5,17 @@ using Photon.Pun;
 using UnityEngine.SceneManagement;
 using System.IO;
 
+//manages the rooms
 public class RoomManager : MonoBehaviourPunCallbacks
 {
 
     public static RoomManager Instance;
-    public Launcher launcher;
 
     void Awake() {
-        if(Instance)//checks if another RoomManager exists
+        //checks if another RoomManager exists
+        if(Instance)
         {
+            //destroy it, only one room manager should exist so everything is synced
             Destroy(gameObject);
             return;
         }
@@ -32,7 +34,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode){
-        if(scene.buildIndex==1 || scene.buildIndex==2 || scene.buildIndex==3){//here we will instanciate the PlayerManager prefab
+        if(scene.buildIndex==1 || scene.buildIndex==2 || scene.buildIndex==3){
             Destroy(Instance);
         }
     }

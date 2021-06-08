@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//chekcs if the player is/isn't on the ground and sets a var accordingly
 public class PlayerGroundCheck : MonoBehaviour
 {
     PlayerController playerController;

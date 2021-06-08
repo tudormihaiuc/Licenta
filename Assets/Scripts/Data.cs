@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
+//class that takes care of saving/loading the player profile
 public class Data : MonoBehaviour
 {
+    //creates a Profile.data file that keeps the username of the player and saves it
     public static void SaveProfile(ProfileData t_profile)
     {
         try
@@ -24,7 +25,7 @@ public class Data : MonoBehaviour
             Debug.Log("Something went wrong with the data file");
         }
     }
-
+    //loads the profile file of each player that contains the username
     public static ProfileData LoadProfile()
     {
         ProfileData returnedValue = new ProfileData();

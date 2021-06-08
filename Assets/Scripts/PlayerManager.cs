@@ -9,6 +9,7 @@ using Photon.Realtime;
 using UnityEngine.UI;
 using System.Linq;
 
+//class keeping the current match info about the player
 public class PlayerInfo
 {
     public ProfileData profile;
@@ -33,13 +34,14 @@ public enum GameState
     Playing = 2,
     Ending = 3
 }
+//keeps track of player stats, spawns the player, initializes the ui for the player etc.
 public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     PhotonView photonView;
-    public GameObject[] spawnLocations;
+    public GameObject[] spawnLocations;//possible spawning loations for the players
     public string player_prefab_string;
     public GameObject player_prefab;
-    public List<PlayerInfo> playerInfo = new List<PlayerInfo>();
+    public List<PlayerInfo> playerInfo = new List<PlayerInfo>();//list keeping the match info of each player
     private Text uiMyKills;
     private Text uiMyDeaths;
     private Text uiKilled;
@@ -55,7 +57,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private int currentMatchTime;
     private Coroutine timerCoroutine;
     private int roundCount;
-    private bool playerAdded;
+    //event codes for each event used to sync the data between all players
     public enum EventCodes : byte
     {
         NewPlayer,
@@ -77,7 +79,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
     void Awake()
     {
         photonView = GetComponent<PhotonView>();
-        spawnLocations = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        spawnLocations = GameObject.FindGameObjectsWithTag("SpawnPoint");//find the spawn points
     }
     void Start()
     {
@@ -85,11 +87,12 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         InitializeUI();
         InitializeTimer();
         totalKills = 0;
-        NewPlayer_S(Launcher.myProfile);
+        NewPlayer_S(Launcher.myProfile);//send a new player event for each player that joins the game
         CreateController();
 
 
     }
+    //Initializes all Ui for the player
     private void InitializeUI()
     {
         uiMyDeaths = GameObject.Find("HUD/Stats/Deaths/Text").GetComponent<Text>();
@@ -99,14 +102,17 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         uiLeaderboard = GameObject.Find("HUD").transform.Find("Leaderboard").transform;
         uiEndgame = GameObject.Find("Canvas").transform.Find("End Game").transform;
         uiTimer = GameObject.Find("HUD/Timer/Text").GetComponent<Text>();
-        //RefreshMyStats();
     }
+
+    //refreshes the Ui of the match timer
     private void RefreshTimerUI()
     {
         string minutes = (currentMatchTime / 60).ToString("00");
         string seconds = (currentMatchTime % 60).ToString("00");
         uiTimer.text = $"{minutes}:{seconds}";
     }
+
+    //starts the timer of the match on the Hosts client, all the other players have the time synced at his timer
     private void InitializeTimer()
     {
         currentMatchTime = 180;
@@ -122,23 +128,19 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             return;
         }
+        //if the player presses the Tab key, activate the leaderboard
         if (Input.GetKey(KeyCode.Tab))
         {
-            //Debug.Log("activate leaderboard");
             Leaderboard(uiLeaderboard);
         }
+        //if the player stops pressing the Tab key, deactivate the leaderboard
         else
         {
             uiLeaderboard.gameObject.SetActive(false);
         }
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            foreach (PlayerInfo a in playerInfo)
-            {
-                Debug.Log(a.profile.username);
-            }
-        }
+        ScoreCheck();//check for the endgame condition
     }
+    //function that creates the leaderboard
     private void Leaderboard(Transform p_lb)
     {
         //clean 
@@ -155,9 +157,9 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         //sort
         List<PlayerInfo> sorted = SortPlayers(playerInfo);
-        //Debug.Log(sorted.Count);
         //display
         bool t_alternateColors = false;
+        //foreach player in the game, instantiate a pleyer card in the leaderboard
         foreach (PlayerInfo p in sorted)
         {
             GameObject newcard = Instantiate(playercard, p_lb) as GameObject;
@@ -166,6 +168,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
                 newcard.GetComponent<Image>().color = new Color32(0, 0, 0, 180);
             }
             t_alternateColors = !t_alternateColors;
+            //get the player stats and put it in the player card
             newcard.transform.Find("Level").GetComponent<Text>().text = p.profile.level.ToString("00");
             newcard.transform.Find("Username").GetComponent<Text>().text = p.profile.username;
             newcard.transform.Find("Score Value").GetComponent<Text>().text = (p.kills * 100).ToString();
@@ -177,11 +180,10 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         p_lb.gameObject.SetActive(true);
 
     }
+    //sorts the players after their kill counters
     private List<PlayerInfo> SortPlayers(List<PlayerInfo> p_info)
     {
         List<PlayerInfo> sorted = new List<PlayerInfo>();
-
-        //Debug.Log(p_info.Count);
         while (sorted.Count < p_info.Count)
         {
             short highest = -1;
@@ -206,17 +208,18 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         return sorted.Distinct().ToList<PlayerInfo>();
     }
 
+    //checks if an event is happening and syncs it between all players
     public void OnEvent(EventData photonEvent)
     {
+        // the eventcodes lower then 200 are reserved by photon
         if (photonEvent.Code >= 200) return;
 
         EventCodes e = (EventCodes)photonEvent.Code;
-        object[] o = (object[])photonEvent.CustomData;
+        object[] o = (object[])photonEvent.CustomData;//get the data of each event and wrap it in an array
 
         switch (e)
         {
             case EventCodes.NewPlayer:
-                //Debug.Log("new player");
                 NewPlayer_R(o);
                 break;
 
@@ -236,6 +239,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
     }
 
+    //func  tion that spawns a player at a random location from the spawnLocations array
     public void CreateController()
     {
         //here we instantiate our player controller
@@ -249,12 +253,15 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
 
     }
+
+    //function used for easier testing (starting the game from any scene loads the first scene, the menu)
     private void ValidateConnection()
     {
         if (PhotonNetwork.IsConnected) return;
         SceneManager.LoadScene(0);
     }
 
+    //function that sends a new player event over the network
     public void NewPlayer_S(ProfileData p)
     {
         object[] package = new object[7];
@@ -263,20 +270,24 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         package[1] = p.level;
         package[2] = p.xp;
         package[3] = PhotonNetwork.LocalPlayer.ActorNumber;
-        package[4] = (short)0;
-        package[5] = (short)0;
+        package[4] = (short)0;//kills
+        package[5] = (short)0;//deaths
         package[6]=CalculateTeam();
         Debug.Log("player sent: " + p.username);
+        //raise the actual event
         PhotonNetwork.RaiseEvent(
-            (byte)EventCodes.NewPlayer,
-            package,
-            new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient },
+            (byte)EventCodes.NewPlayer,//which event it is
+            package,//the package we encapsulated the data
+            new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient },//set to send the event to teh host
+                                                                            //(he will send it to the other players)
             new SendOptions { Reliability = true }
         );
     }
 
+    //function that receives the new player event
     public void NewPlayer_R(object[] data)
     {
+        //unpack the received data
         PlayerInfo p = new PlayerInfo(
             new ProfileData(
                 (string)data[0],
@@ -288,14 +299,16 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
             (short)data[5],
             (bool)data[6]
         );
-        playerInfo.Add(p);
-        UpdatePlayers_S((int)state, playerInfo);
+        playerInfo.Add(p);//add the received player to the player list that has all of the current players in the match in it
+        UpdatePlayers_S((int)state, playerInfo);//send another event to update the current players on all machines
     }
 
+    //functions that raises an event to update the players on all machines
     public void UpdatePlayers_S(int state, List<PlayerInfo> info)
     {
-        object[] package = new object[info.Count + 1];
-        package[0] = state;
+        object[] package = new object[info.Count + 1];//make a new package of the size of our list
+        package[0] = state;//the state of the game(running or ending)
+        //same thing as before, but we make a piece array for every player and every piece we add to the package
         for (int i = 0; i < info.Count; i++)
         {
             object[] piece = new object[7];
@@ -310,18 +323,20 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
             package[i + 1] = piece;
         }
-
+        //raise the event
         PhotonNetwork.RaiseEvent(
             (byte)EventCodes.UpdatePlayers,
             package,
-            new RaiseEventOptions { Receivers = ReceiverGroup.All },
+            new RaiseEventOptions { Receivers = ReceiverGroup.All },//send the event to all clients
             new SendOptions { Reliability = true }
         );
     }
 
+    //functions that receives the event to update the players on all machines
     public void UpdatePlayers_R(object[] data)
     {
-        state = (GameState)data[0];
+        //repopulate the playerInfo list of players with the new received data
+        state = (GameState)data[0];//the state of the game(running or ending)
         playerInfo = new List<PlayerInfo>();
 
         for (int i = 1; i < data.Length; i++)
@@ -346,8 +361,10 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         StateCheck();
     }
 
+    //function that takes care of sending the changes in the stats of each player by raising an event 
     public void ChangeStat_S(int actor, byte stat, byte amt)
     {
+        //make a package that contains the actor number of the player, the stat(kill/death) and the amount that needs to be added
         object[] package = new object[] { actor, stat, amt };
 
         PhotonNetwork.RaiseEvent(
@@ -358,47 +375,51 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         );
     }
 
+    //function that receives the data containg the player stats update
     public void ChangeStat_R(object[] data)
     {
         int actor = (int)data[0];
         byte stat = (byte)data[1];
         byte amt = (byte)data[2];
-
+        //chech for changes for every player
         for (int i = 0; i < playerInfo.Count; i++)
         {
+            //update only for the correct player
             if (playerInfo[i].actor == actor)
             {
                 switch (stat)
                 {
                     case 0: //kills
-                        playerInfo[i].kills += amt;
+                        playerInfo[i].kills += amt;//update the kills of the player
                         totalKills++;
                         Debug.Log($"Player {playerInfo[i].profile.username} : kills = {playerInfo[i].kills}");
-                        uiKiller.text = $"{playerInfo[i].profile.username}";
+                        uiKiller.text = $"{playerInfo[i].profile.username}";//update the last kill ui
                         break;
 
                     case 1: //deaths
-                        playerInfo[i].deaths += amt;
+                        playerInfo[i].deaths += amt;//update the deaths of the player
                         totalDeaths++;
                         Debug.Log($"Player {playerInfo[i].profile.username} : deaths = {playerInfo[i].deaths}");
-                        uiKilled.text = $"{playerInfo[i].profile.username}";
+                        uiKilled.text = $"{playerInfo[i].profile.username}";//update the last kill ui
                         break;
                 }
+                //if the player made a kill or died
                 if (playerInfo[i].profile.username == Launcher.myProfile.username)
                 {
-                    //RefreshMyStats();
-                    uiMyDeaths.text = $"{playerInfo[i].deaths} deaths";
-                    uiMyKills.text = $"{playerInfo[i].kills} kills";
+                    uiMyDeaths.text = $"{playerInfo[i].deaths} deaths";//update the deaths ui of the player
+                    uiMyKills.text = $"{playerInfo[i].kills} kills";//update the kills ui of the player
                 }
                 if (uiLeaderboard.gameObject.activeSelf)
                 {
-                    Leaderboard(uiLeaderboard);
+                    Leaderboard(uiLeaderboard);//update the leaderboard
                 }
                 break;
             }
         }
-        ScoreCheck();
+        ScoreCheck();//check for the endgame condition
     }
+
+    //if player leaves the room, load the menu scene
     public override void OnLeftRoom()
     {
         base.OnLeftRoom();
@@ -409,23 +430,35 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         Debug.Log("check score");
         bool detectWin = false;
+        //chech for every player
         foreach (PlayerInfo p in playerInfo)
         {
+            //if a player reaches 10 kills
             if (p.kills >= 10)
             {
                 detectWin = true;
                 Debug.Log("detected win");
                 break;
             }
+            //or if the player is the only left player in the lobby
+            if(PhotonNetwork.CurrentRoom.PlayerCount==1 && GameSettings.GameMode==GameMode.F4A){
+                detectWin = true;
+                Debug.Log("all other players left=>WIN");
+                break;
+            }
         }
+        //if we detect a win 
         if (detectWin)
         {
             if (PhotonNetwork.IsMasterClient && state != GameState.Ending)
             {
+                //update for all players 
                 UpdatePlayers_S((int)GameState.Ending, playerInfo);
             }
         }
     }
+
+    //function that handles the end of the match
     private void Endgame()
     {
         state = GameState.Ending;
@@ -438,15 +471,10 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.DestroyAll();
-            if (!newMatch)
-            {
-                PhotonNetwork.CurrentRoom.IsVisible = false;
-                PhotonNetwork.CurrentRoom.IsOpen = false;
-            }
         }
-        uiEndgame.gameObject.SetActive(true);
-        Leaderboard(uiEndgame.Find("Leaderboard"));
-        StartCoroutine(End(6f));
+        uiEndgame.gameObject.SetActive(true);//show the endgame ui
+        Leaderboard(uiEndgame.Find("Leaderboard"));//show the leaderboard so all players can see their endgame stats
+        StartCoroutine(End(6f));//keep the endgame screen for 6 seconds 
     }
     private IEnumerator End(float p_wait)
     {
@@ -455,7 +483,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                NewMatch_S();
+                NewMatch_S();//not used
             }
         }
         else
@@ -468,17 +496,22 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         yield return new WaitForSeconds(1f);
         currentMatchTime -= 1;
+        //if the match timer is up
         if (currentMatchTime <= 0)
         {
+            //end the game
             timerCoroutine = null;
             UpdatePlayers_S((int)GameState.Ending, playerInfo);
         }
         else
         {
+            //if not, recall the coroutine
             RefreshTimer_S();
             timerCoroutine = StartCoroutine(Timer());
         }
     }
+
+    //used to sent the current match time to all the other players
     public void RefreshTimer_S()
     {
         object[] package = new object[] { currentMatchTime };
@@ -489,11 +522,17 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
             new SendOptions { Reliability = true }
         );
     }
+
+    //used to receive the current match time
     public void RefreshTimer_R(object[] data)
     {
         currentMatchTime = (int)data[0];
         RefreshTimerUI();
     }
+
+    //FROM HERE BELOW IS CODE THAT IS NOT CURRENTLY USED, MAYBE USED FOR FUTURE FEATURES
+
+    //function that checks if the game is ending
     private void StateCheck()
     {
         if (state == GameState.Ending)
@@ -501,6 +540,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
             Endgame();
         }
     }
+
+    //function to start the new match, never used
     public void NewMatch_S()
     {
         PhotonNetwork.RaiseEvent(
@@ -510,6 +551,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
             new SendOptions { Reliability = true }
         );
     }
+
+    //function to start the new match, never used
     public void NewMatch_R()
     {
         state = GameState.Waiting;
@@ -522,6 +565,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IOnEventCallback
         InitializeTimer();
         CreateController();
     }
+
+    //function to calculate the team of a player, never used
     private bool CalculateTeam(){
         return false;
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//manages the menu tabs from the array of menus
 public class MenuManager : MonoBehaviour
 {
     public static MenuManager Instance;

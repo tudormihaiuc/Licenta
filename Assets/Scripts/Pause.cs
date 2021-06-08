@@ -4,11 +4,13 @@ using UnityEngine;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
 
+//handles the pause Menu of the game
 public class Pause : MonoBehaviour
 {
     public static bool paused=false;
     private bool disconnecting=false;
 
+    //toggles the pause menu and makes the cursor visible
     public void TogglePause(){
         if(disconnecting){
             return;
@@ -20,10 +22,10 @@ public class Pause : MonoBehaviour
         Debug.Log("Pause");
     }
 
+    //function that allows the player to quit the match
     public void Quit(){
         disconnecting=true;
         PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene(0);
-        //Application.Quit();
     }
 }
