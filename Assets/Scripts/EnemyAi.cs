@@ -33,12 +33,15 @@ public class EnemyAi : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
     }
     //When the runtime of the script starts, create an aiManager object from the AiManager class
-    private void Start() {
+    private void Start()
+    {
         aiManager = GameObject.Find("AiManager").GetComponent<AiManager>();
     }
 
     private void Update()
-    {   
+    {
+        //agent.enabled = false;
+        //agent.enabled = true;
         //Every frame get the Player object (the ai needs to now every frame the position of the player)
         player = GameObject.FindGameObjectWithTag("Player").transform;
         //Check for sight and attack range
@@ -72,7 +75,7 @@ public class EnemyAi : MonoBehaviour
         float randomX = Random.Range(-walkPointRange, walkPointRange);
         //set a random walking point
         walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
-        //if the ai reached the walkpoint
+        //if the ai can reach the walkpoint
         if (Physics.Raycast(walkPoint, -transform.up, 2f, whatIsGround))
             walkPointSet = true;
     }
@@ -81,6 +84,7 @@ public class EnemyAi : MonoBehaviour
     private void ChasePlayer()
     {
         agent.SetDestination(player.position);
+        walkPointSet=false;
     }
 
     //ai attacks the player
@@ -121,7 +125,7 @@ public class EnemyAi : MonoBehaviour
     {
         Destroy(gameObject);
         aiManager.SpawnAi();
-        
+
     }
 
     private void OnDrawGizmosSelected()

@@ -340,6 +340,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+        //we are doing the calculations here because the method Update() is called every farme 
+        //and we dont want our calculations be impacted by the frame rate
     void FixedUpdate()
     {
         if (!photonView.IsMine)
@@ -355,8 +357,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         bool isSprinting = sprint && !isJumping && grounded && t_vmove > 0;
         bool isSliding = isSprinting && slide && !sliding;
         isAiming = aim && !isSliding && !isSprinting;
-        //we are doing the calculations here because the method Update() is called every farme 
-        //and we dont want our calculations be impacted by the frame rate
+        
         if (Pause.paused)
         {
             t_hmove = 0f;
@@ -533,7 +534,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
 
     }
-
+    /*
     //enables/disables the mouse cursor if the Escape key is pressed
     void UpdateCursorLock()
     {
@@ -555,7 +556,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 cursorLocked = true;
             }
         }
-    }
+    }*/
 
     //makes the player able to take damage and die and takes as parameters the damage received and the player who sends the damage
     public void TakeDamage(int p_damage, int p_actor)
@@ -571,7 +572,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 sfx.PlayOneShot(deathSound);
                 Debug.Log("You died");
                 PhotonNetwork.Destroy(gameObject);//destroy the player
-                //when the plater dies update his deaths 
+                //when the player dies update his deaths 
                 playerManager.ChangeStat_S(PhotonNetwork.LocalPlayer.ActorNumber, 1, 1);
                 if (p_actor >= 0)
                 {   
@@ -692,4 +693,5 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     {
         StartCoroutine(Wait());
     }
+    
 }

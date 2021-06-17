@@ -342,7 +342,7 @@ public class Weapon : MonoBehaviourPunCallbacks
                 currentWeapon.GetComponent<Animator>().Play("Reload", 0, 0);
             }
 
-            yield return new WaitForSeconds(p_wait);//wait for p_wait ammount of time without freezing the script
+            yield return new WaitForSeconds(p_wait);//automatically wait for p_wait ammount of time without freezing the script
             loadout[currentIndex].ReloadGun();//call the ReloadGun function from the Gun class
             currentWeapon.SetActive(true);
             isReloading = false;
