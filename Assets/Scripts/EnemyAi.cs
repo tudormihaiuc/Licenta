@@ -5,28 +5,18 @@ using UnityEngine.AI;
 public class EnemyAi : MonoBehaviour
 {
     public NavMeshAgent agent;
-
     public Transform player;
-
     public LayerMask whatIsGround, whatIsPlayer;
-
     public float health;
-
-    //Patroling
     public Vector3 walkPoint;
-    bool walkPointSet;
     public float walkPointRange;
-
-    //Attacking
     public float timeBetweenAttacks;
-    bool alreadyAttacked;
     public GameObject projectile;
-
-    //States
     public float sightRange, attackRange;
     public bool playerInSightRange, playerInAttackRange;
     private AiManager aiManager;
-
+    bool walkPointSet;
+    bool alreadyAttacked;
     //When the script is loaded find the NavMeshAgent
     private void Awake()
     {
@@ -45,21 +35,24 @@ public class EnemyAi : MonoBehaviour
         //Every frame get the Player object (the ai needs to now every frame the position of the player)
         player = GameObject.FindGameObjectWithTag("Player").transform;
         //Check for sight and attack range
-        playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
+        playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
+
         //depending of the current range between the player and the ai, set the correct state
-        if (!playerInSightRange && !playerInAttackRange) Patroling();
-        if (playerInSightRange && !playerInAttackRange) ChasePlayer();
         if (playerInAttackRange && playerInSightRange) AttackPlayer();
+        if (playerInSightRange && !playerInAttackRange) ChasePlayer();
+        if (!playerInSightRange && !playerInAttackRange) Patroling();
     }
 
     //takes care of the random movement of the ai
     private void Patroling()
     {
-        if (!walkPointSet) SearchWalkPoint();
-
         if (walkPointSet)
+        {
             agent.SetDestination(walkPoint);
+        }
+
+        if (!walkPointSet) SearchWalkPoint();
 
         Vector3 distanceToWalkPoint = transform.position - walkPoint;
 
@@ -71,8 +64,8 @@ public class EnemyAi : MonoBehaviour
     private void SearchWalkPoint()
     {
         //Calculate random point in range
-        float randomZ = Random.Range(-walkPointRange, walkPointRange);
         float randomX = Random.Range(-walkPointRange, walkPointRange);
+        float randomZ = Random.Range(-walkPointRange, walkPointRange);
         //set a random walking point
         walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
         //if the ai can reach the walkpoint
@@ -84,7 +77,7 @@ public class EnemyAi : MonoBehaviour
     private void ChasePlayer()
     {
         agent.SetDestination(player.position);
-        walkPointSet=false;
+        walkPointSet = false;
     }
 
     //ai attacks the player
@@ -118,7 +111,10 @@ public class EnemyAi : MonoBehaviour
     {
         health -= damage;
         //if the ai health reaches 0 or below, destroy the enemy
-        if (health <= 0) Invoke(nameof(DestroyEnemy), 0.5f);
+        if (health <= 0)
+        {
+            DestroyEnemy();
+        }
     }
     //destroys the enemy gameObj and calls the spawn function again
     private void DestroyEnemy()
@@ -128,11 +124,4 @@ public class EnemyAi : MonoBehaviour
 
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, sightRange);
-    }
 }
