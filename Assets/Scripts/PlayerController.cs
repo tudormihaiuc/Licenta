@@ -200,6 +200,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             RefreshMultiplayerState();
             return;
         }
+        UpdateCursorLock();
         if (photonView.IsMine)
         {
             if (grounded == true && rb.velocity.magnitude > 2f)
@@ -534,7 +535,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
 
     }
-    /*
+    
     //enables/disables the mouse cursor if the Escape key is pressed
     void UpdateCursorLock()
     {
@@ -556,7 +557,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 cursorLocked = true;
             }
         }
-    }*/
+    }
 
     //makes the player able to take damage and die and takes as parameters the damage received and the player who sends the damage
     public void TakeDamage(int p_damage, int p_actor)

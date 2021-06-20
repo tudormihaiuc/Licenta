@@ -232,6 +232,11 @@ public class Launcher : MonoBehaviourPunCallbacks
     //load the scene coresponding to the chosen map
     public void StartGame()
     {
+        if(PhotonNetwork.CurrentRoom.CustomProperties["mode"]=="0"){
+            GameSettings.GameMode=GameMode.F4A;
+        }else{
+            GameSettings.GameMode=GameMode.SOLO;
+        }
         PhotonNetwork.LoadLevel(maps[currentMap].scene);
         //if the game has started, make the room invisible, so other players can't see it
         PhotonNetwork.CurrentRoom.IsVisible = false;
