@@ -30,7 +30,7 @@ public class Pickup : MonoBehaviourPunCallbacks
             weaponController.photonView.RPC("PickupWeapon", RpcTarget.All, gun.name);
             //call the GetAmmo function on pickup of a new weapon
             weapon.GetAmmo();
-            photonView.RPC("Disable", RpcTarget.All);
+            //photonView.RPC("Disable", RpcTarget.All);
         }
     }
     private void Start()
@@ -43,39 +43,5 @@ public class Pickup : MonoBehaviourPunCallbacks
         GameObject newDisplay = Instantiate(gun.display, gunDisplay.transform.position, gunDisplay.transform.rotation) as GameObject;
         newDisplay.transform.SetParent(gunDisplay.transform);
     }
-    private void Update()
-    {
-        if (isDisabled)
-        {
-            if (wait > 0)
-            {
-                wait = -Time.deltaTime;
-            }
-            else
-            {
-                //reenable 
-                Enable();
-            }
-        }
-    }
-    [PunRPC]
-    public void Disable()
-    {
-        Debug.Log("disable");
-        isDisabled = true;
-        wait = cooldown;
-        foreach (GameObject target in targets)
-        {
-            target.SetActive(false);
-        }
-    }
-    private void Enable()
-    {
-        isDisabled = false;
-        wait = 0;
-        foreach (GameObject target in targets)
-        {
-            target.SetActive(true);
-        }
-    }
+
 }
